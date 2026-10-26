@@ -1,0 +1,5 @@
+# This tree is also the root of the public HighKnow-ai/design, where the monorepo's own
+# .gitignore does not exist, so it names what it builds itself.
+node_modules/
+dist/
+*.tsbuildinfo

@@ -1,0 +1,25 @@
+{
+  // SELF-CONTAINED, ON PURPOSE: no `extends` outside design/. This tree is exported as the root
+  // of the public HighKnow-ai/design (#614), where nothing above it exists, and
+  // scripts/check-flywheel-boundary.sh --tree design refuses a path that leaves it. The options
+  // are the monorepo's `packages/config/tsconfig.base.json` restated, so the package compiles
+  // under the same strictness here and there.
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "exactOptionalPropertyTypes": true,
+    "verbatimModuleSyntax": true,
+    "skipLibCheck": true,
+    "declaration": true,
+    "composite": true,
+    "sourceMap": true,
+    "outDir": "dist",
+    "rootDir": "src",
+    "jsx": "react-jsx",
+    "lib": ["ES2023", "DOM", "DOM.Iterable"]
+  },
+  "include": ["src"]
+}
