@@ -9,6 +9,7 @@ import { Inbox } from "lucide-react";
 import { describe, expect, it, vi } from "vitest";
 import {
   Button,
+  LOADING_MIN_VISIBLE_MS,
   NavGroup,
   NavItem,
   PageBody,
@@ -126,7 +127,7 @@ describe("TopBar", () => {
    * THE SECTION IS THE TITLE'S SKELETON, SO IT KEEPS THE LOADING RULE (#639). A page whose title
    * is data used to show its section at once and swap it for the title a moment later: "Knowledge"
    * for 170 ms on a direct load of a meeting, a flash. Nothing for 150 ms, then the section, held
-   * at least 400 ms; a title that lands inside the 150 ms is all the bar ever shows.
+   * at least 350 ms (#638); a title that lands inside the 150 ms is all the bar ever shows.
    */
   it("shows a title that lands within 150 ms without ever showing the section", async () => {
     vi.useFakeTimers();
@@ -143,13 +144,13 @@ describe("TopBar", () => {
     }
   });
 
-  it("holds a section once shown for 400 ms, even when the title lands at once", async () => {
+  it("holds a section once shown for the loading hold, even when the title lands at once", async () => {
     vi.useFakeTimers();
     try {
       const { rerender } = render(<TopBar section="Knowledge" />);
       await act(async () => void vi.advanceTimersByTime(150));
       rerender(<TopBar section="Knowledge" title="Acme renewal" />);
-      await act(async () => void vi.advanceTimersByTime(399));
+      await act(async () => void vi.advanceTimersByTime(LOADING_MIN_VISIBLE_MS - 1));
       expect(screen.getByRole("banner")).toHaveTextContent("Knowledge");
       await act(async () => void vi.advanceTimersByTime(1));
       expect(screen.getByRole("heading", { level: 1, name: "Acme renewal" })).toBeInTheDocument();

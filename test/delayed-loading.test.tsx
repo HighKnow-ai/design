@@ -1,5 +1,5 @@
 /**
- * The loading gate (decision 212): nothing for 150 ms, then the skeleton, held at least 400 ms
+ * The loading gate (decision 212): nothing for 150 ms, then the skeleton, held at least 350 ms
  * once shown; a fresh clock per wait. Driven with fake timers (which fake `Date.now` too), so
  * every boundary is asserted at the millisecond rather than raced.
  */
@@ -19,9 +19,16 @@ describe("useDelayedLoading", () => {
   beforeEach(() => vi.useFakeTimers());
   afterEach(() => vi.useRealTimers());
 
-  it("the thresholds are the policy's: 150 ms before, 400 ms held", () => {
+  it("the thresholds are the policy's: 150 ms before, 350 ms held (#638)", () => {
     expect(LOADING_THRESHOLD_MS).toBe(150);
-    expect(LOADING_MIN_VISIBLE_MS).toBe(400);
+    expect(LOADING_MIN_VISIBLE_MS).toBe(350);
+  });
+
+  // THE HOLD HAS A FLOOR, AND IT IS NOT A TASTE (#638): Tenure's opening check (#631, #639) calls
+  // anything on screen for under 300 ms a flash, and a skeleton is drawn a frame or two after the
+  // timer that shows it fires. A hold of 300 ms or less would fail that check by construction.
+  it("holds the skeleton past the 300 ms flash floor, with three frames to spare", () => {
+    expect(LOADING_MIN_VISIBLE_MS).toBeGreaterThanOrEqual(300 + 3 * 16);
   });
 
   it("is false before 150 ms and true after", () => {
@@ -43,7 +50,7 @@ describe("useDelayedLoading", () => {
     expect(result.current).toBe(false);
   });
 
-  it("once shown, holds for 400 ms even when the wait ends at once", () => {
+  it("once shown, holds for 350 ms even when the wait ends at once", () => {
     const { result, rerender } = renderHook(({ p }) => useDelayedLoading(p), {
       initialProps: { p: true },
     });
@@ -59,7 +66,7 @@ describe("useDelayedLoading", () => {
     expect(result.current).toBe(false);
   });
 
-  it("hides at once when the wait ends after the skeleton has already been up 400 ms", () => {
+  it("hides at once when the wait ends after the skeleton has already been up 350 ms", () => {
     const { result, rerender } = renderHook(({ p }) => useDelayedLoading(p), {
       initialProps: { p: true },
     });
@@ -145,7 +152,7 @@ describe("<Delayed>", () => {
     expect(screen.getByRole("status")).toHaveTextContent("Loading the meeting list.");
   });
 
-  it("keeps the skeleton for 400 ms after it appeared, then cross-fades the content in", () => {
+  it("keeps the skeleton for 350 ms after it appeared, then cross-fades the content in", () => {
     const { rerender, container } = render(<Region pending />);
     advance(LOADING_THRESHOLD_MS);
     rerender(<Region pending={false} />);
@@ -155,6 +162,26 @@ describe("<Delayed>", () => {
     advance(LOADING_MIN_VISIBLE_MS);
     expect(screen.getByText("The meetings")).toBeInTheDocument();
     expect(container.querySelector("[data-loading-phase='ready']")?.className).toMatch(/fade-in/);
+  });
+
+  // A PRODUCT MAY REPLACE THE BASE'S FADE (#638: Tenure's rows rise in turn instead), and it needs
+  // a stable hook to do that on, not the fade's utility class names.
+  it("marks content that replaced a skeleton as a hand-over, and only that content", () => {
+    const { rerender, container } = render(<Region pending />);
+    advance(LOADING_THRESHOLD_MS);
+    rerender(<Region pending={false} />);
+    advance(LOADING_MIN_VISIBLE_MS);
+    expect(container.querySelector("[data-loading-phase='ready']")).toHaveAttribute(
+      "data-handover",
+      "skeleton",
+    );
+
+    const fast = render(<Region pending />);
+    advance(100);
+    fast.rerender(<Region pending={false} />);
+    expect(fast.container.querySelector("[data-loading-phase='ready']")).not.toHaveAttribute(
+      "data-handover",
+    );
   });
 
   it("content that lands inside 150 ms appears with no entrance at all", () => {

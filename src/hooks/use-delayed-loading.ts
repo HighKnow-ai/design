@@ -1,7 +1,7 @@
 /**
  * The one loading gate, the base's loading policy (#615 point 6; loading, empty, failed and
  * unknown are four different facts): nothing for 150 ms, then the loading treatment, held at
- * least 400 ms once it has appeared.
+ * least 350 ms once it has appeared.
  *
  * ═══════════════════════════════════════════════════════════════════════════════════════
  * A WAIT UNDER 150 ms SHOWS NOTHING, AND THAT IS DELIBERATE. Most reads land inside it, and a
@@ -9,8 +9,11 @@
  * Past 150 ms the person has noticed the wait, and a blank region is then the wrong answer, so
  * the caller shows a skeleton in the region's own final shape.
  *
- * ONCE SHOWN, IT STAYS AT LEAST 400 ms. A skeleton that appears at 150 ms and is replaced at
- * 170 ms blinks, which reads as a fault. So the flag stays `true` after `isPending` ends until
+ * ONCE SHOWN, IT STAYS AT LEAST 350 ms (400 until #638 re-measured the reads). A skeleton that
+ * appears at 150 ms and is replaced at 170 ms blinks, which reads as a fault. 350 is the shortest
+ * hold that is not itself a flash: Tenure's opening check (#631) counts anything on screen for
+ * under 300 ms as one, and the skeleton is painted a frame or two after the timer below fires,
+ * so the floor is 300 plus three frames, rounded. So the flag stays `true` after `isPending` ends until
  * the skeleton has been on screen for {@link LOADING_MIN_VISIBLE_MS}; a caller therefore checks
  * this flag BEFORE it checks for data (`<Delayed>` does that for it).
  *
@@ -24,7 +27,7 @@ import { useEffect, useRef, useState } from "react";
 export const LOADING_THRESHOLD_MS = 150;
 
 /** The least time the loading treatment stays on screen once it has appeared. */
-export const LOADING_MIN_VISIBLE_MS = 400;
+export const LOADING_MIN_VISIBLE_MS = 350;
 
 /**
  * `true` once `isPending` has been `true` for {@link LOADING_THRESHOLD_MS}, and then until it has

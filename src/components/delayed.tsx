@@ -1,13 +1,17 @@
 /**
  * One region's loading grammar, as a component (#616, from Tenure's `shell/Delayed.tsx`; loading,
  * empty, failed and unknown are four different facts): nothing for the first 150 ms of a first load, then
- * `fallback` (a skeleton in the region's final geometry) held at least 400 ms, then the content.
+ * `fallback` (a skeleton in the region's final geometry) held at least 350 ms, then the content.
  *
  * ═══════════════════════════════════════════════════════════════════════════════════════
  * THE CONTENT CROSS-FADES IN ONLY WHEN IT REPLACES A SKELETON. A region that was already there,
  * or whose data landed inside 150 ms, never re-enters: an entrance on content the reader has
  * already seen is motion without meaning. The fade is the overlay duration on the one curve, and
  * under reduced motion it stays (a fade is not movement; `@highknow/design/base.css`).
+ *
+ * THAT CONTENT ALSO CARRIES `data-handover="skeleton"`, the stable hook a product replaces the
+ * fade on (Tenure's rows rise in turn instead, #638). Key on the attribute, never on the fade's
+ * utility classes, and replace the fade rather than adding to it: a fade on a fade reads as lag.
  *
  * `children` MAY BE A FUNCTION, so a caller can write `{() => <List rows={query.data!} />}` and
  * the data is only read once the gate says it is there. Pass the query's `isPending` (a FIRST
@@ -70,6 +74,7 @@ export function Delayed({
         className,
       )}
       data-loading-phase="ready"
+      data-handover={sawSkeleton.current ? "skeleton" : undefined}
     >
       {typeof children === "function" ? children() : children}
     </div>

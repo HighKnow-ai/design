@@ -47,7 +47,7 @@ export function TopBar({
   className,
 }: TopBarProps) {
   // THE SECTION IS THE TITLE'S SKELETON AND KEEPS THE LOADING RULE (#639): nothing for 150 ms,
-  // then the section, held at least 400 ms once shown. Drawn at once, it flashed for as long as a
+  // then the section, held at least 350 ms once shown. Drawn at once, it flashed for as long as a
   // title took to land (170 ms on a meeting's direct load, measured by Tenure's opening check).
   const showSection = useDelayedLoading(title === undefined) && section !== undefined;
   return (

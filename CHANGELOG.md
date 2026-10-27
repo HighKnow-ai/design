@@ -11,6 +11,21 @@ until the apex, Tenure and Flywheel all run on the package:
 In `0.x` a rename lands with the migration of every surface that runs the package from the
 workspace. A release is the tag `design-vX.Y.Z` on the commit that carries its entry here.
 
+## Unreleased
+
+From Tenure's page motion and re-tuned loading floor (#638). Flywheel stays on its exact `0.1.0`
+pin until this ships as a release.
+
+#### Components
+
+- The loading hold is 350 ms, down from 400 (`LOADING_MIN_VISIBLE_MS`, so `Delayed`,
+  `useDelayedLoading`, `useLoadingPhase` and `TopBar`'s `section`). The threshold stays 150 ms
+  (`LOADING_THRESHOLD_MS`). 350 is the shortest hold that is not itself a flash: Tenure's opening
+  check counts anything on screen under 300 ms as one, and the skeleton paints a frame or two after
+  its timer fires. A value changed without changing its meaning: minor.
+- `Delayed` marks content that replaced a skeleton with `data-handover="skeleton"`, a stable hook
+  for a product to replace the base's fade on (Tenure's rows rise in turn instead). Added: minor.
+
 ## 0.1.0
 
 The first version: the base every HighKnow surface is built from.
