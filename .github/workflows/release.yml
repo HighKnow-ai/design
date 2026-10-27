@@ -88,7 +88,10 @@ jobs:
       # this repository promises.
       - name: Read back the version and its provenance
         run: |
-          for attempt in 1 2 3 4 5 6; do
+          # FIVE MINUTES, NOT ONE. The first release (v0.1.0, 2026-10-27) published with provenance,
+          # but the registry took longer than 60 s to show the version, so this check failed a
+          # release that had succeeded.
+          for attempt in $(seq 1 30); do
             if ATT=$(npm view "@highknow/design@$VERSION" dist.attestations --json 2>/dev/null) && [ -n "$ATT" ]; then
               break
             fi
