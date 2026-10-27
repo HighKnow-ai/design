@@ -11,9 +11,13 @@ until the apex, Tenure and Flywheel all run on the package:
 In `0.x` a rename lands with the migration of every surface that runs the package from the
 workspace. A release is the tag `design-vX.Y.Z` on the commit that carries its entry here.
 
-## Unreleased
+## 0.1.0
 
-### Tokens
+The first version: the base every HighKnow surface is built from.
+
+Folded in before the first publish, from Tenure's migration (#622) and its opening screen (#639):
+
+#### Tokens
 
 - `--duration-breath` (2080 ms, 8 × overlay): one cycle of a wait that repeats, for Tenure's opening
   mark (#639). The base had no duration for a loop.
@@ -22,7 +26,7 @@ workspace. A release is the tag `design-vX.Y.Z` on the commit that carries its e
   (`size-adjust`, `ascent-override`, `descent-override`), so the swap when a file lands moves no
   text (#639).
 
-### Components
+#### Components
 
 - `TopBar`'s row is a button's height whether or not the page has an action, so a title no longer
   drops when an action arrives; its count is keyed by the title; and `section` follows the loading
@@ -33,10 +37,6 @@ workspace. A release is the tag `design-vX.Y.Z` on the commit that carries its e
 - `TopBar` takes `section`, shown in the title's place (never as the `h1`) while a page has no
   title yet, and its `h1` carries its full title as a tooltip for when it truncates. Both are
   Tenure's shell behaviours, kept when Tenure moved onto the frame parts (#622).
-
-## 0.1.0
-
-The first version: the base every HighKnow surface is built from.
 
 ### Tokens (`theme.css`, `tokens.json`)
 
