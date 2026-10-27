@@ -1,0 +1,114 @@
+name: CI
+# Every change arrives on `next`: this repository is the public export of a private source of truth,
+# which pushes each change there and never to `main`. A green run on `next` fast-forwards `main` to
+# the commit it tested (`promote`, at the end), so `main` only ever holds commits this workflow
+# passed, and a release tag is only ever pushed at a commit on `main`. A pull request runs once,
+# on pull_request; it is not merged here but taken into the source of truth.
+#
+# UBUNTU ONLY, on the standard hosted runner, which a public repository does not pay for. The
+# package is TypeScript and CSS, and its tests run in jsdom. The install is the lockfile's, exactly
+# (`--frozen-lockfile`): pnpm-lock.yaml at this root is the one the source of truth keeps checked.
+#
+# Every action is pinned to a full commit SHA with its version beside it: a tag is a pointer its
+# owner can move, and this file is edited in a private repository whose checks refuse a tag pin.
+on:
+  push:
+    branches: [next]
+  pull_request:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: Install, build and test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: 24.19.0
+      # pnpm by exact version through npm, so no further action is trusted with the job.
+      - run: npm install --global pnpm@11.21.0
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm run build
+      - run: pnpm run typecheck
+      - run: pnpm test
+      # What npm would publish, read rather than assumed: the compiled entry points and the CSS
+      # must be in the tarball, and nothing from the tests.
+      - name: The package contents
+        run: |
+          npm pack --dry-run --json > pack.json
+          node -e '
+            const files = JSON.parse(require("fs").readFileSync("pack.json", "utf8"))[0].files.map((f) => f.path);
+            const need = ["dist/index.js", "dist/index.d.ts", "dist/marketing.js", "css/theme.css", "css/base.css", "css/fonts.css", "tokens.json", "LICENSE", "NOTICE"];
+            const missing = need.filter((p) => !files.includes(p));
+            const stray = files.filter((p) => p.startsWith("test/") || p.startsWith("src/") || p.startsWith(".github/"));
+            if (missing.length || stray.length) {
+              console.error("missing:", missing, "stray:", stray);
+              process.exit(1);
+            }
+            console.log(files.length + " files, every entry point present");
+          '
+
+  # The one check the ruleset on `main` requires (the private repository's infra/terraform/github.tf
+  # names it). It passes only when every job above succeeded.
+  build:
+    name: build
+    if: always()
+    needs: [test]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Every job passed
+        env:
+          NEEDS: ${{ toJSON(needs) }}
+        run: |
+          echo "$NEEDS" | jq -r 'to_entries[] | "\(.key): \(.value.result)"'
+          failed=$(echo "$NEEDS" | jq -r 'to_entries[] | select(.value.result != "success") | .key')
+          if [ -n "$failed" ]; then
+            echo "::error::not passed: $(echo $failed)"
+            exit 1
+          fi
+
+  # `next` -> `main`, the tested commit and nothing else, fast-forward only.
+  #
+  # WITH A DEPLOY KEY (PROMOTE_DEPLOY_KEY, write access to this repository alone), because
+  # GITHUB_TOKEN cannot push a range that changes .github/workflows/, and the export App's key is
+  # installed on the private repository too. What makes the push safe is the two rulesets on
+  # `main`: `main` requires `build` on the pushed commit of everybody, this key included, and
+  # refuses force-pushes and deletion; `main-writers` refuses every push except from a deploy key
+  # or an admin through a pull request.
+  promote:
+    name: Fast-forward main
+    needs: [build]
+    if: github.event_name == 'push' && github.ref == 'refs/heads/next'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          ssh-key: ${{ secrets.PROMOTE_DEPLOY_KEY }}
+
+      - name: Fast-forward main to the tested commit
+        env:
+          TESTED: ${{ github.sha }}
+        run: |
+          git fetch --quiet origin main
+          if git merge-base --is-ancestor "$TESTED" origin/main; then
+            echo "main already contains $TESTED"
+            exit 0
+          fi
+          if ! git merge-base --is-ancestor origin/main "$TESTED"; then
+            echo "::error::$TESTED does not descend from main ($(git rev-parse origin/main)); refusing to rewrite main"
+            exit 1
+          fi
+          git push origin "$TESTED:refs/heads/main"
+          echo "main -> $TESTED"
