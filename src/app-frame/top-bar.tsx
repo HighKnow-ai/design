@@ -5,14 +5,20 @@
  *
  * ONE PRIMARY ACTION. `action` is one slot; a page with more actions than that puts the rest in
  * its body or behind a menu, so the bar never becomes a toolbar.
+ *
+ * A TITLE STILL ON ITS WAY IS NOT A MISSING ONE. A page whose name is data (a deal thread) has no
+ * title until its read answers; `section` (the sidebar group the page sits in) holds the bar's
+ * place meanwhile, quietly and never as the `h1`, so the bar does not jump from empty to named.
  */
 import type { ReactNode } from "react";
 import { cn } from "../lib/utils.js";
 import { PAGE_WIDTHS, type PageWidth } from "./page-body.js";
 
 export interface TopBarProps {
-  /** The page's name, the page's `h1`. */
+  /** The page's name, the page's `h1`. Its full value is also its tooltip, for when it truncates. */
   readonly title?: string | undefined;
+  /** Shown in the title's place, never as the `h1`, while the page has no title (yet). */
+  readonly section?: string | undefined;
   /** A tabular count beside the title ("12 meetings"). Absent while not known. */
   readonly count?: string | undefined;
   /** The page's one primary action, right-aligned. */
@@ -26,6 +32,7 @@ export interface TopBarProps {
 
 export function TopBar({
   title,
+  section,
   count,
   action,
   leading,
@@ -42,7 +49,13 @@ export function TopBar({
     >
       {leading !== undefined ? <div className="-ml-1 xl:absolute xl:left-4">{leading}</div> : null}
       <div className={cn("mx-auto flex w-full min-w-0 items-center gap-2", PAGE_WIDTHS[width])}>
-        {title !== undefined ? <h1 className="truncate text-row font-semibold">{title}</h1> : null}
+        {title !== undefined ? (
+          <h1 className="truncate text-row font-semibold" title={title}>
+            {title}
+          </h1>
+        ) : section !== undefined ? (
+          <span className="truncate text-small text-muted-foreground">{section}</span>
+        ) : null}
         {count !== undefined ? (
           <span className="hidden text-small text-muted-foreground tabular-nums sm:inline">
             {count}

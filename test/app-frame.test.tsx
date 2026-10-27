@@ -97,6 +97,24 @@ describe("TopBar", () => {
     expect(screen.getByRole("button", { name: "Record" })).toBeInTheDocument();
   });
 
+  it("gives a truncating title its full value as a tooltip", () => {
+    render(<TopBar title="Acme Corporation renewal, second half" />);
+    expect(screen.getByRole("heading", { level: 1 })).toHaveAttribute(
+      "title",
+      "Acme Corporation renewal, second half",
+    );
+  });
+
+  it("names the page's section while the page has no title yet, and never as the h1", () => {
+    const { rerender } = render(<TopBar section="Knowledge" />);
+    const bar = screen.getByRole("banner");
+    expect(bar).toHaveTextContent("Knowledge");
+    expect(screen.queryByRole("heading", { level: 1 })).toBeNull();
+    rerender(<TopBar section="Knowledge" title="Acme renewal" />);
+    expect(bar).not.toHaveTextContent("Knowledge");
+    expect(screen.getByRole("heading", { level: 1, name: "Acme renewal" })).toBeInTheDocument();
+  });
+
   it("stands alone, outside any sidebar frame", () => {
     render(<TopBar title="Board" className="bg-card" />);
     const heading = screen.getByRole("heading", { level: 1, name: "Board" });

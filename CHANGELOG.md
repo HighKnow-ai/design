@@ -11,6 +11,14 @@ until the apex, Tenure and Flywheel all run on the package:
 In `0.x` a rename lands with the migration of every surface that runs the package from the
 workspace. A release is the tag `design-vX.Y.Z` on the commit that carries its entry here.
 
+## Unreleased
+
+### Components
+
+- `TopBar` takes `section`, shown in the title's place (never as the `h1`) while a page has no
+  title yet, and its `h1` carries its full title as a tooltip for when it truncates. Both are
+  Tenure's shell behaviours, kept when Tenure moved onto the frame parts (#622).
+
 ## 0.1.0
 
 The first version: the base every HighKnow surface is built from.
