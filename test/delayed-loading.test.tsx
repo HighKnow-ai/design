@@ -1,8 +1,10 @@
 /**
  * The loading gate (decision 212): nothing for 150 ms, then the skeleton, held at least 350 ms
  * once shown; a fresh clock per wait. Driven with fake timers (which fake `Date.now` too), so
- * every boundary is asserted at the millisecond rather than raced.
+ * every boundary is asserted at the millisecond rather than raced, except the one suite at the
+ * end, which needs the real event loop.
  */
+import { useEffect, useState } from "react";
 import { act, render, renderHook, screen } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { Delayed } from "../src/index.js";
@@ -212,4 +214,61 @@ describe("<Delayed>", () => {
     advance(LOADING_MIN_VISIBLE_MS);
     expect(child).toHaveBeenCalled();
   });
+});
+
+/**
+ * LANDED CONTENT IS MOUNTED ONCE (tenure-v0.3.18's hosted run). The 150 ms timer used to be
+ * cleared in a passive effect, which React runs in a task AFTER the commit that draws the
+ * content. On a loaded machine that commit crosses 150 ms, the timer fires in the gap, raises the
+ * skeleton over content already on screen and, 350 ms later, mounts the content a second time: a
+ * flash, a replayed entrance, and lost focus or selection. Real timers, because the gap belongs
+ * to the event loop and fake timers flush effects inside `act`, which closes it. The content's
+ * render is slow on purpose: that is the loaded machine.
+ */
+describe("<Delayed> mounts landed content once", () => {
+  const busy = (ms: number) => {
+    const until = performance.now() + ms;
+    while (performance.now() < until) {
+      // Spin: a render this slow is what a loaded runner does to a cheap one.
+    }
+  };
+  const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+
+  function Region({
+    landsAt,
+    renderCost,
+  }: {
+    readonly landsAt: number;
+    readonly renderCost: number;
+  }) {
+    const [pending, setPending] = useState(true);
+    useEffect(() => {
+      const timer = setTimeout(() => setPending(false), landsAt);
+      return () => clearTimeout(timer);
+    }, [landsAt]);
+    return (
+      <Delayed pending={pending} label="Loading." fallback={<div data-testid="skeleton" />}>
+        {() => {
+          busy(renderCost);
+          return <p>The meetings</p>;
+        }}
+      </Delayed>
+    );
+  }
+
+  // Before 150 ms with a render that ends past it, at it, and after it (a real skeleton first).
+  for (const [landsAt, renderCost] of [
+    [120, 60],
+    [140, 30],
+    [LOADING_THRESHOLD_MS, 10],
+    [200, 10],
+  ] as const) {
+    it(`keeps the first content node when it lands at ${landsAt} ms (render ${renderCost} ms)`, async () => {
+      render(<Region landsAt={landsAt} renderCost={renderCost} />);
+      const node = await screen.findByText("The meetings", undefined, { timeout: 2000 });
+      await wait(LOADING_THRESHOLD_MS + LOADING_MIN_VISIBLE_MS + 100);
+      expect(node.isConnected).toBe(true);
+      expect(screen.getByText("The meetings")).toBe(node);
+    });
+  }
 });

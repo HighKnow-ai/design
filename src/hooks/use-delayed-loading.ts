@@ -21,7 +21,7 @@
  * replaced four private copies. Flywheel adopts it with this package (#615 point 6), in place of
  * its immediate skeleton.
  */
-import { useEffect, useRef, useState } from "react";
+import { useLayoutEffect, useRef, useState } from "react";
 
 /** How long a pending state may run before the loading treatment is allowed to appear. */
 export const LOADING_THRESHOLD_MS = 150;
@@ -38,7 +38,13 @@ export function useDelayedLoading(isPending: boolean): boolean {
   const [show, setShow] = useState(false);
   const shownAt = useRef<number | null>(null);
 
-  useEffect(() => {
+  // A LAYOUT EFFECT, NOT A PASSIVE ONE: LOAD-BEARING (tenure-v0.3.18). The commit that draws the
+  // landed content must also cancel the 150 ms timer. A passive effect's cleanup runs in a later
+  // task, and on a loaded machine the timer fires in that gap, raising the skeleton over content
+  // already on screen and mounting that content a second time 350 ms later: a flash, a replayed
+  // entrance, lost focus. A layout effect's cleanup runs inside the commit, so no task fits
+  // between. React 19 runs neither kind on the server, so this costs server rendering nothing.
+  useLayoutEffect(() => {
     if (isPending) {
       if (show) return undefined;
       const timer = setTimeout(() => {

@@ -26,6 +26,15 @@ pin until this ships as a release.
 - `Delayed` marks content that replaced a skeleton with `data-handover="skeleton"`, a stable hook
   for a product to replace the base's fade on (Tenure's rows rise in turn instead). Added: minor.
 
+#### Fixes
+
+- Content that lands just before 150 ms is mounted once (`useDelayedLoading`, so `Delayed`,
+  `useLoadingPhase` and `TopBar`'s `section`). The 150 ms timer was cleared in a passive effect,
+  which runs a task after the commit that draws the content. On a loaded machine the timer fired in
+  that gap, raised the skeleton over content already on screen and mounted the content a second
+  time 350 ms later, which flashed it, replayed its entrance and dropped focus. The timer now
+  clears in a layout effect, inside that commit. Fix: patch.
+
 ## 0.1.0
 
 The first version: the base every HighKnow surface is built from.
