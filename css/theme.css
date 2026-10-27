@@ -49,10 +49,13 @@
 :root {
   color-scheme: light;
 
+  /* Each face is followed by its metric-matched fallback (`fonts.css`, #639), so the swap from one
+     to the other when the file lands moves no text. */
   --font-ui:
-    "Public Sans Variable", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    "Public Sans Variable", "Public Sans Fallback", ui-sans-serif, system-ui, -apple-system,
+    "Segoe UI", Roboto, sans-serif;
   --font-ui-condensed: var(--font-ui);
-  --font-code: "JetBrains Mono", ui-monospace, monospace;
+  --font-code: "JetBrains Mono", "JetBrains Mono Fallback", ui-monospace, monospace;
 
   --background: #e6e8ec;
   --foreground: #12151c;
@@ -103,13 +106,16 @@
        feedback      120ms  a press, a hover, a check ticking
        state         160ms  a value changing in place
        overlay       260ms  an overlay arriving or a disclosure opening
-       overlay-exit  180ms  the same leaving: exits are faster than entrances */
+       overlay-exit  180ms  the same leaving: exits are faster than entrances
+       breath       2080ms  one cycle of a wait that repeats: Tenure's opening mark (#639), 8 x
+                            overlay, slow enough to read as calm and not as busy */
   --ease-out-quint: cubic-bezier(0.16, 1, 0.3, 1);
   --ease: var(--ease-out-quint);
   --duration-feedback: 120ms;
   --duration-state: 160ms;
   --duration-overlay: 260ms;
   --duration-overlay-exit: 180ms;
+  --duration-breath: 2080ms;
 }
 
 /* ── Dark ──────────────────────────────────────────────────────────────────────────────────── */

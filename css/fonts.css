@@ -11,3 +11,41 @@
 @import "@fontsource-variable/public-sans/wght.css";
 @import "@fontsource-variable/public-sans/wght-italic.css";
 @import "@fontsource/jetbrains-mono/latin-400.css";
+
+/*
+ * THE FALLBACKS, SIZED TO THE FACES THEY STAND IN FOR (#639). Every face above is `font-display:
+ * swap`, so text first paints in whatever the stack falls back to and is redrawn when the file
+ * lands. With an unmatched fallback that redraw moves text: a line rewraps, a right-aligned figure
+ * slides, a sidebar foot changes height (measured: the web app's first page shifted on every cold
+ * load). These two faces are local fonts scaled to the self-hosted ones' metrics, so the swap
+ * changes the letterforms and moves nothing.
+ *
+ * THE NUMBERS ARE MEASURED, FROM THE FONT FILES (fontTools, 2026-10-27):
+ *   Public Sans: ascent 1900, descent 450, line gap 0 on a 2000 em; mean advance of English text
+ *     0.4611 em. Arial (and its metric clone Liberation Sans): 0.4471 em.
+ *     size-adjust 0.4611 / 0.4471 = 103.13 %; ascent 0.95 / 1.0313 = 92.11 %;
+ *     descent 0.225 / 1.0313 = 21.82 %.
+ *   JetBrains Mono: ascent 1020, descent 300 on a 1000 em, advance 0.600 em. Menlo 0.6021 em,
+ *     Courier New 0.6001: size-adjust 99.7 %; ascent 1.02 / 0.997 = 102.31 %;
+ *     descent 0.3 / 0.997 = 30.09 %.
+ * The overrides are divided by `size-adjust` because the browser scales them with it.
+ *
+ * `theme.css` names each one right after its face (`--font-ui`, `--font-code`).
+ */
+@font-face {
+  font-family: "Public Sans Fallback";
+  src: local("Arial"), local("ArialMT"), local("Liberation Sans");
+  size-adjust: 103.13%;
+  ascent-override: 92.11%;
+  descent-override: 21.82%;
+  line-gap-override: 0%;
+}
+
+@font-face {
+  font-family: "JetBrains Mono Fallback";
+  src: local("Menlo"), local("Menlo-Regular"), local("Courier New");
+  size-adjust: 99.7%;
+  ascent-override: 102.31%;
+  descent-override: 30.09%;
+  line-gap-override: 0%;
+}

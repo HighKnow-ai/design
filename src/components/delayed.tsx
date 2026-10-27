@@ -50,7 +50,15 @@ export function Delayed({
         </span>
         {/* HIDDEN FROM ASSISTIVE TECHNOLOGY: the status line above says what is loading, and a
             skeleton shaped like a table must never be read, or queried, as the table. */}
-        {phase === "skeleton" ? <div aria-hidden="true">{fallback}</div> : null}
+        {/* `display: contents` (#639): the skeleton's blocks are laid out by the same wrapper,
+            and so by the same rules, as the content's (a `flex flex-col gap-4` stacks both
+            alike). As a plain block this wrapper made the skeleton one flex item, its blocks
+            stacked with no gap, 16 px shorter than the content that replaced it. */}
+        {phase === "skeleton" ? (
+          <div aria-hidden="true" className="contents">
+            {fallback}
+          </div>
+        ) : null}
       </div>
     );
   }

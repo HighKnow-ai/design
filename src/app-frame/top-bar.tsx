@@ -8,9 +8,16 @@
  *
  * A TITLE STILL ON ITS WAY IS NOT A MISSING ONE. A page whose name is data (a deal thread) has no
  * title until its read answers; `section` (the sidebar group the page sits in) holds the bar's
- * place meanwhile, quietly and never as the `h1`, so the bar does not jump from empty to named.
+ * place meanwhile (after the loading rule's 150 ms, below), quietly and never as the `h1`.
+ *
+ * NOTHING IN THE BAR MOVES WHEN A PAGE'S HEADER ARRIVES OR CHANGES (#639, measured by Tenure's
+ * opening check). The row is the height of a button whether or not the page has an action, so the
+ * title does not drop 7 px when an action arrives or leaves. The count is keyed by the title: a
+ * new page's count is a new element beside a new title, not the old count sliding sideways to sit
+ * after a longer or shorter name.
  */
 import type { ReactNode } from "react";
+import { useDelayedLoading } from "../hooks/use-delayed-loading.js";
 import { cn } from "../lib/utils.js";
 import { PAGE_WIDTHS, type PageWidth } from "./page-body.js";
 
@@ -39,6 +46,10 @@ export function TopBar({
   width = "reading",
   className,
 }: TopBarProps) {
+  // THE SECTION IS THE TITLE'S SKELETON AND KEEPS THE LOADING RULE (#639): nothing for 150 ms,
+  // then the section, held at least 400 ms once shown. Drawn at once, it flashed for as long as a
+  // title took to land (170 ms on a meeting's direct load, measured by Tenure's opening check).
+  const showSection = useDelayedLoading(title === undefined) && section !== undefined;
   return (
     <header
       data-slot="top-bar"
@@ -48,16 +59,19 @@ export function TopBar({
       )}
     >
       {leading !== undefined ? <div className="-ml-1 xl:absolute xl:left-4">{leading}</div> : null}
-      <div className={cn("mx-auto flex w-full min-w-0 items-center gap-2", PAGE_WIDTHS[width])}>
-        {title !== undefined ? (
+      <div className={cn("mx-auto flex h-9 w-full min-w-0 items-center gap-2", PAGE_WIDTHS[width])}>
+        {showSection ? (
+          <span className="truncate text-small text-muted-foreground">{section}</span>
+        ) : title !== undefined ? (
           <h1 className="truncate text-row font-semibold" title={title}>
             {title}
           </h1>
-        ) : section !== undefined ? (
-          <span className="truncate text-small text-muted-foreground">{section}</span>
         ) : null}
         {count !== undefined ? (
-          <span className="hidden text-small text-muted-foreground tabular-nums sm:inline">
+          <span
+            key={title ?? section}
+            className="hidden text-small text-muted-foreground tabular-nums sm:inline"
+          >
             {count}
           </span>
         ) : null}

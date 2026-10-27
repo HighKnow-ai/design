@@ -3,7 +3,7 @@
  * count, one primary action) and the page body (width and rhythm). Tenure composes its sidebar app
  * from all three; Flywheel takes the top bar and the page body and keeps its andon strip.
  */
-import { render, screen } from "@testing-library/react";
+import { act, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { Inbox } from "lucide-react";
 import { describe, expect, it, vi } from "vitest";
@@ -105,14 +105,57 @@ describe("TopBar", () => {
     );
   });
 
-  it("names the page's section while the page has no title yet, and never as the h1", () => {
-    const { rerender } = render(<TopBar section="Knowledge" />);
-    const bar = screen.getByRole("banner");
-    expect(bar).toHaveTextContent("Knowledge");
-    expect(screen.queryByRole("heading", { level: 1 })).toBeNull();
-    rerender(<TopBar section="Knowledge" title="Acme renewal" />);
-    expect(bar).not.toHaveTextContent("Knowledge");
-    expect(screen.getByRole("heading", { level: 1, name: "Acme renewal" })).toBeInTheDocument();
+  it("names the page's section while the page has no title yet, and never as the h1", async () => {
+    vi.useFakeTimers();
+    try {
+      const { rerender } = render(<TopBar section="Knowledge" />);
+      await act(async () => void vi.advanceTimersByTime(150));
+      const bar = screen.getByRole("banner");
+      expect(bar).toHaveTextContent("Knowledge");
+      expect(screen.queryByRole("heading", { level: 1 })).toBeNull();
+      rerender(<TopBar section="Knowledge" title="Acme renewal" />);
+      await act(async () => void vi.advanceTimersByTime(400));
+      expect(bar).not.toHaveTextContent("Knowledge");
+      expect(screen.getByRole("heading", { level: 1, name: "Acme renewal" })).toBeInTheDocument();
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  /**
+   * THE SECTION IS THE TITLE'S SKELETON, SO IT KEEPS THE LOADING RULE (#639). A page whose title
+   * is data used to show its section at once and swap it for the title a moment later: "Knowledge"
+   * for 170 ms on a direct load of a meeting, a flash. Nothing for 150 ms, then the section, held
+   * at least 400 ms; a title that lands inside the 150 ms is all the bar ever shows.
+   */
+  it("shows a title that lands within 150 ms without ever showing the section", async () => {
+    vi.useFakeTimers();
+    try {
+      const { rerender } = render(<TopBar section="Knowledge" />);
+      await act(async () => void vi.advanceTimersByTime(149));
+      expect(screen.getByRole("banner")).not.toHaveTextContent("Knowledge");
+      rerender(<TopBar section="Knowledge" title="Acme renewal" />);
+      await act(async () => void vi.advanceTimersByTime(1000));
+      expect(screen.getByRole("banner")).not.toHaveTextContent("Knowledge");
+      expect(screen.getByRole("heading", { level: 1, name: "Acme renewal" })).toBeInTheDocument();
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it("holds a section once shown for 400 ms, even when the title lands at once", async () => {
+    vi.useFakeTimers();
+    try {
+      const { rerender } = render(<TopBar section="Knowledge" />);
+      await act(async () => void vi.advanceTimersByTime(150));
+      rerender(<TopBar section="Knowledge" title="Acme renewal" />);
+      await act(async () => void vi.advanceTimersByTime(399));
+      expect(screen.getByRole("banner")).toHaveTextContent("Knowledge");
+      await act(async () => void vi.advanceTimersByTime(1));
+      expect(screen.getByRole("heading", { level: 1, name: "Acme renewal" })).toBeInTheDocument();
+    } finally {
+      vi.useRealTimers();
+    }
   });
 
   it("stands alone, outside any sidebar frame", () => {

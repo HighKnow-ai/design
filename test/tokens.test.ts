@@ -37,6 +37,23 @@ describe("the base's values (#615, #617)", () => {
     expect(tokens.font["font-ui"]).toMatch(/^"Public Sans Variable"/);
   });
 
+  it("follows each face with a fallback sized to it, so the font swap moves no text (#639)", () => {
+    expect(tokens.font["font-ui"]).toMatch(/^"Public Sans Variable", "Public Sans Fallback",/);
+    expect(tokens.font["font-code"]).toMatch(/^"JetBrains Mono", "JetBrains Mono Fallback",/);
+    const fonts = readCss("fonts");
+    // The measured values from `fonts.css`'s header, written out.
+    for (const [family, size, ascent, descent] of [
+      ["Public Sans Fallback", "103.13%", "92.11%", "21.82%"],
+      ["JetBrains Mono Fallback", "99.7%", "102.31%", "30.09%"],
+    ] as const) {
+      const face = fonts.split("@font-face").find((block) => block.includes(`"${family}"`)) ?? "";
+      expect(face, family).toContain(`size-adjust: ${size};`);
+      expect(face, family).toContain(`ascent-override: ${ascent};`);
+      expect(face, family).toContain(`descent-override: ${descent};`);
+      expect(face, family).toContain("line-gap-override: 0%;");
+    }
+  });
+
   it("has the nine UI steps, the 20 px lead step, and the 52 px step renamed lead-count", () => {
     const sizes = Object.fromEntries(
       Object.entries(tokens.text).map(([step, { size }]) => [step, size]),
@@ -63,7 +80,7 @@ describe("the base's values (#615, #617)", () => {
     expect(tokens.text["display-1"]?.size).toContain("5.5rem");
   });
 
-  it("has the one curve and its four durations, and three shadows plus the scrim", () => {
+  it("has the one curve, its four durations and one breath, and three shadows plus the scrim", () => {
     expect(tokens.motion).toEqual({
       "ease-out-quint": "cubic-bezier(0.16, 1, 0.3, 1)",
       ease: "var(--ease-out-quint)",
@@ -71,6 +88,8 @@ describe("the base's values (#615, #617)", () => {
       "duration-state": "160ms",
       "duration-overlay": "260ms",
       "duration-overlay-exit": "180ms",
+      // A wait that repeats (#639): Tenure's opening mark, 8 x overlay.
+      "duration-breath": "2080ms",
     });
     for (const scheme of schemes) {
       expect(Object.keys(tokens.shadow[scheme]).sort()).toEqual([
