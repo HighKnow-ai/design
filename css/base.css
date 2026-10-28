@@ -3,11 +3,11 @@
  * layer, disclosure motion and reduced-motion block, as Tenure's `app.css` already carried them.
  *
  * ═══════════════════════════════════════════════════════════════════════════════════════
- * NOT IN `theme.css`, BECAUSE THE OVERLAY IMPORTS `theme.css` AND NEVER THIS (#618 point 7). The
+ * NOT IN `theme.css`, BECAUSE THE OVERLAY IMPORTS `theme.css` AND NEVER THIS. The
  * `body` floor below would paint the overlay's transparent window, and the reduced-motion block
  * rewrites every `transition*` utility, which the overlay decides for itself.
  *
- * A page that wants a white page instead of the grey floor (the apex, #615 point 3) sets its own
+ * A page that wants a white page instead of the grey floor (the apex) sets its own
  * page colour on `body` after this import; the products keep the floor with cards on it.
  */
 

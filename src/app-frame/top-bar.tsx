@@ -1,5 +1,5 @@
 /**
- * The top bar (#616 point 3): the page's name, its count and its one primary action, from Tenure's
+ * The top bar: the page's name, its count and its one primary action, from Tenure's
  * `AppShell` header. It stands alone (Flywheel puts it under its andon strip) or inside a
  * `SidebarFrame`, where a product passes the `SidebarTrigger` as `leading`.
  *
@@ -10,7 +10,7 @@
  * title until its read answers; `section` (the sidebar group the page sits in) holds the bar's
  * place meanwhile (after the loading rule's 150 ms, below), quietly and never as the `h1`.
  *
- * NOTHING IN THE BAR MOVES WHEN A PAGE'S HEADER ARRIVES OR CHANGES (#639, measured by Tenure's
+ * NOTHING IN THE BAR MOVES WHEN A PAGE'S HEADER ARRIVES OR CHANGES (measured by Tenure's
  * opening check). The row is the height of a button whether or not the page has an action, so the
  * title does not drop 7 px when an action arrives or leaves. The count is keyed by the title: a
  * new page's count is a new element beside a new title, not the old count sliding sideways to sit
@@ -46,7 +46,7 @@ export function TopBar({
   width = "reading",
   className,
 }: TopBarProps) {
-  // THE SECTION IS THE TITLE'S SKELETON AND KEEPS THE LOADING RULE (#639): nothing for 150 ms,
+  // THE SECTION IS THE TITLE'S SKELETON AND KEEPS THE LOADING RULE: nothing for 150 ms,
   // then the section, held at least 350 ms once shown. Drawn at once, it flashed for as long as a
   // title took to land (170 ms on a meeting's direct load, measured by Tenure's opening check).
   const showSection = useDelayedLoading(title === undefined) && section !== undefined;

@@ -1,6 +1,6 @@
 /**
  * Times as they read at a glance, from Flywheel's `lib/format.ts`. The words come from the
- * platform (`Intl.RelativeTimeFormat`), never from this package (#616 point 5): "3m ago" in
+ * platform (`Intl.RelativeTimeFormat`), never from this package: "3m ago" in
  * English, "il y a 3 min" or its narrow form in French, whatever the reader's locale says.
  *
  * A value that is missing or cannot be read is the dash, never `0` or `NaN`.

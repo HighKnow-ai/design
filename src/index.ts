@@ -1,5 +1,5 @@
 /**
- * @highknow/design: the base every HighKnow surface is built from (#612).
+ * @highknow/design: the base every HighKnow surface is built from.
  *
  * The CSS is imported separately (`@highknow/design/theme.css`, `/base.css`, `/fonts.css`); this
  * entry is the React half. The marketing parts are a separate entry,
@@ -48,7 +48,7 @@ export * from "./components/ui/toggle.js";
 export * from "./components/ui/tooltip.js";
 export { useIsMobile } from "./hooks/use-mobile.js";
 
-// ─── The shared composites (#616 point 2) ───────────────────────────────────────────────────
+// ─── The shared composites ───────────────────────────────────────────────────
 export { ReadError, messageOf, type ReadErrorProps } from "./components/read-error.js";
 export { Delayed, type DelayedProps } from "./components/delayed.js";
 export {
@@ -94,7 +94,7 @@ export { BRAND_HEX, Wordmark, type WordmarkProps } from "./brand/wordmark.js";
 export { MarkGlyph, type MarkGlyphProps } from "./brand/mark-glyph.js";
 export { AppIcon, type AppIconProps, type AppIconTile } from "./brand/app-icon.js";
 
-// ─── The app frame, as parts (#616 point 3) ─────────────────────────────────────────────────
+// ─── The app frame, as parts ─────────────────────────────────────────────────
 export { SidebarFrame, type SidebarFrameProps } from "./app-frame/sidebar-frame.js";
 export {
   NavGroup,

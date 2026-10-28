@@ -1,5 +1,5 @@
 /**
- * The base's values, held to the decisions that set them (#615, #617) and to the contrast floors
+ * The base's values, held to the decisions that set them and to the contrast floors
  * the products already enforced (Tenure's `contrast.test.ts`, Flywheel's `theme/__tests__`).
  * Expected values are the decisions' own numbers, written out, never read back from the CSS.
  */
@@ -9,7 +9,7 @@ import { contrast, readCss, readTokens } from "./css-tokens.js";
 const tokens = readTokens();
 const schemes = ["light", "dark"] as const;
 
-describe("the base's values (#615, #617)", () => {
+describe("the base's values", () => {
   it("pins the primary, hsl(225, 70%, 55%), in both schemes, with #7d99ff as the dark lift", () => {
     expect(tokens.color.light.primary).toBe("#3c64dd");
     expect(tokens.color.dark.primary).toBe("#3c64dd");
@@ -37,7 +37,7 @@ describe("the base's values (#615, #617)", () => {
     expect(tokens.font["font-ui"]).toMatch(/^"Public Sans Variable"/);
   });
 
-  it("follows each face with a fallback sized to it, so the font swap moves no text (#639)", () => {
+  it("follows each face with a fallback sized to it, so the font swap moves no text", () => {
     expect(tokens.font["font-ui"]).toMatch(/^"Public Sans Variable", "Public Sans Fallback",/);
     expect(tokens.font["font-code"]).toMatch(/^"JetBrains Mono", "JetBrains Mono Fallback",/);
     const fonts = readCss("fonts");
@@ -88,7 +88,7 @@ describe("the base's values (#615, #617)", () => {
       "duration-state": "160ms",
       "duration-overlay": "260ms",
       "duration-overlay-exit": "180ms",
-      // A wait that repeats (#639): Tenure's opening mark, 8 x overlay.
+      // A wait that repeats: Tenure's opening mark, 8 x overlay.
       "duration-breath": "2080ms",
     });
     for (const scheme of schemes) {
@@ -138,7 +138,7 @@ describe("contrast floors", () => {
     "%s: a control boundary and the ring pass 3:1 where they are drawn",
     (scheme) => {
       const c = tokens.color[scheme];
-      // #615's defect: the apex's ghost button drew `--border` at 1.52:1. `--input` is the boundary.
+      // A defect: the apex's ghost button drew `--border` at 1.52:1. `--input` is the boundary.
       expect(contrast(c.input!, c.card!), "input on card").toBeGreaterThanOrEqual(NON_TEXT);
       expect(contrast(c.ring!, c.background!), "ring on background").toBeGreaterThanOrEqual(
         NON_TEXT,

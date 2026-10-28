@@ -13,7 +13,7 @@ workspace. A release is the tag `design-vX.Y.Z` on the commit that carries its e
 
 ## Unreleased
 
-From Tenure's page motion and re-tuned loading floor (#638). Flywheel stays on its exact `0.1.0`
+From Tenure's page motion and re-tuned loading floor. Flywheel stays on its exact `0.1.0`
 pin until this ships as a release.
 
 #### Components
@@ -39,28 +39,28 @@ pin until this ships as a release.
 
 The first version: the base every HighKnow surface is built from.
 
-Folded in before the first publish, from Tenure's migration (#622) and its opening screen (#639):
+Folded in before the first publish, from Tenure's migration and its opening screen:
 
 #### Tokens
 
 - `--duration-breath` (2080 ms, 8 × overlay): one cycle of a wait that repeats, for Tenure's opening
-  mark (#639). The base had no duration for a loop.
+  mark. The base had no duration for a loop.
 - `--font-ui` and `--font-code` name a fallback face right after their own: `Public Sans Fallback`
   and `JetBrains Mono Fallback` (`fonts.css`), local fonts scaled to the self-hosted faces' metrics
   (`size-adjust`, `ascent-override`, `descent-override`), so the swap when a file lands moves no
-  text (#639).
+  text.
 
 #### Components
 
 - `TopBar`'s row is a button's height whether or not the page has an action, so a title no longer
   drops when an action arrives; its count is keyed by the title; and `section` follows the loading
-  rule (nothing for 150 ms, then held at least 400 ms), as the title's skeleton (#639).
+  rule (nothing for 150 ms, then held at least 400 ms), as the title's skeleton.
 - `Delayed` lays its skeleton out with the content's own wrapper (`display: contents` on the hidden
-  layer), so a skeleton in a `flex flex-col gap-4` region has the content's gaps (#639).
+  layer), so a skeleton in a `flex flex-col gap-4` region has the content's gaps.
 
 - `TopBar` takes `section`, shown in the title's place (never as the `h1`) while a page has no
   title yet, and its `h1` carries its full title as a tooltip for when it truncates. Both are
-  Tenure's shell behaviours, kept when Tenure moved onto the frame parts (#622).
+  Tenure's shell behaviours, kept when Tenure moved onto the frame parts.
 
 ### Tokens (`theme.css`, `tokens.json`)
 

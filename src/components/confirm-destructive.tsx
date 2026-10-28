@@ -1,5 +1,5 @@
 /**
- * The one confirmation for an action that cannot be taken back (#616), from Flywheel's
+ * The one confirmation for an action that cannot be taken back, from Flywheel's
  * `components/ConfirmDestructive.tsx`. Both products state the rule: destructive is a text button,
  * and it always confirms in an AlertDialog. The question is the title ("Drop FLY-12?"), the
  * consequence is one line, Cancel sits on the left as outline and the action on the right as
@@ -10,7 +10,7 @@
  * the reader can try again or cancel. Open it from a `trigger`, or control it with `open` and
  * `onOpenChange`.
  *
- * Every visible word is the caller's, Cancel included (#616 point 5). `failureLabel` is what shows
+ * Every visible word is the caller's, Cancel included. `failureLabel` is what shows
  * when a failure carries no message of its own.
  */
 import { useState, type ReactNode } from "react";

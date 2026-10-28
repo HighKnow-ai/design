@@ -1,5 +1,5 @@
 /**
- * After-action feedback (#616), from Flywheel's `lib/notify.ts`: the one way a screen says what an
+ * After-action feedback, from Flywheel's `lib/notify.ts`: the one way a screen says what an
  * action just did, through the one `Toaster`. A toast is for the outcome of something the reader
  * did ("Story moved to E-3"), never for state the screen already shows, and never in place of an
  * inline error on the control that failed.
@@ -8,7 +8,7 @@
  *   notify.error("Couldn't merge FLY-12", { error })
  *
  * Words: the title says what happened in the past tense, naming the record; a description is one
- * line. Every word is the caller's (#616 point 5), the action's label included. A toast with an
+ * line. Every word is the caller's, the action's label included. A toast with an
  * action stays up long enough to reach it.
  */
 import { toast } from "sonner";

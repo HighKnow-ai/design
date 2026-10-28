@@ -1,5 +1,5 @@
 /**
- * The site header (#616 point 4, #617: the header from the prototype's variant B). Sticky; it
+ * The site header (the header from the prototype's variant B). Sticky; it
  * condenses on scroll from 64 px to 48 px, the wordmark's name folds away (`data-wordmark-name`)
  * and a border and the card shadow appear.
  *

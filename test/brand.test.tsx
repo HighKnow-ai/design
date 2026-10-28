@@ -1,6 +1,6 @@
 /**
- * The mark and the language switcher (#616), and #617's finding: the shared `Wordmark` and
- * `LanguageSwitcher` hard-set `inline-flex`, so a responsive `hidden` passed through `className`
+ * The mark and the language switcher, and the marketing prototype's finding: the shared `Wordmark`
+ * and `LanguageSwitcher` hard-set `inline-flex`, so a responsive `hidden` passed through `className`
  * lost and the apex had to wrap them. Here a passed class wins over the part's own.
  */
 import { render, screen } from "@testing-library/react";

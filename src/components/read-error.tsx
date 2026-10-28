@@ -1,5 +1,5 @@
 /**
- * A read that failed, in place of the content it could not load (#616): an icon, a title naming
+ * A read that failed, in place of the content it could not load: an icon, a title naming
  * what failed, one line, and a retry. Tenure's `ReadError` (`packages/ui/src/shell/ReadError.tsx`)
  * and Flywheel's (`flywheel/packages/desktop/src/components/ReadError.tsx`) as one component.
  *
@@ -15,7 +15,7 @@
  * query's `isFetching`), so the reader sees the attempt and cannot press twice. With no `onRetry`
  * there is no button: a failure no retry can fix offers none.
  *
- * Every visible word is the caller's (#616 point 5): the title, the line, and the two labels.
+ * Every visible word is the caller's: the title, the line, and the two labels.
  */
 import { ChevronRight, OctagonX, RotateCw } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "./ui/alert.js";

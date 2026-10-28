@@ -1,9 +1,9 @@
 /**
- * The site footer (#616 point 4): the column layout the apex shipped in da160a77, on the page
- * ground (#617: the footer from the prototype's variant A, not B's band on `--muted`, which reads
+ * The site footer: the column layout the apex shipped in da160a77, on the page
+ * ground (the footer from the prototype's variant A, not B's band on `--muted`, which reads
  * as a raised slab in dark). An aside on the left (the mark, the company line, the fine print) and
  * titled columns of links on the right. The legal identity line and the counting sentence are the
- * apex's content, passed in the aside (#616 point 5).
+ * apex's content, passed in the aside.
  */
 import type { ReactNode } from "react";
 import { cn } from "../lib/utils.js";

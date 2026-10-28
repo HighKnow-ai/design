@@ -1,5 +1,5 @@
 /**
- * `Tip` and `TruncateTip` (#616), from Flywheel's `components/Tip.tsx` and
+ * `Tip` and `TruncateTip`, from Flywheel's `components/Tip.tsx` and
  * `components/TruncateTip.tsx`: the one Tooltip in place of a `title=` attribute.
  */
 import { useRef, useState, type ReactElement, type ReactNode } from "react";

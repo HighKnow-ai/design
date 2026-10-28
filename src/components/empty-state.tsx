@@ -1,5 +1,5 @@
 /**
- * The one no-content component (#616): a heading, one line, and at most one action, drawn as
+ * The one no-content component: a heading, one line, and at most one action, drawn as
  * shadcn's `Empty`. Generalised from Tenure's `packages/ui/src/knowledge/EmptyState.tsx`, whose
  * product-specific variants stay in Tenure; Flywheel composed `Empty` inline to the same rule.
  *

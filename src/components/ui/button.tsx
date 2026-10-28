@@ -1,7 +1,7 @@
 /**
  * shadcn/ui `button` (style radix-nova), Flywheel's retheme
  * (`flywheel/packages/desktop/src/components/ui/button.tsx`), with the neutral tones only and a
- * factory a product extends (#615 point 7, #616).
+ * factory a product extends.
  *
  * One filled primary per region, brand blue. `neutral` is the filled ink, for the one place a
  * refusal should lead without spending the brand on it. `destructive` is a text button set apart

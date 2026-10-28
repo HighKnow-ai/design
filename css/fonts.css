@@ -2,10 +2,10 @@
  * @highknow/design: the self-hosted faces (SIL OFL 1.1, through Fontsource), as Flywheel imports
  * them. A render on one machine matches another, and the browser fetches only the unicode-range
  * subsets a page uses. These are the package's own `dependencies`, exact-pinned and never copied
- * in, so each licence stays with its package (#614 § Fonts); a consumer declares no font.
+ * in, so each licence stays with its package; a consumer declares no font.
  *
  *   Public Sans Variable, roman and italic: one variable file per style covers every weight. The
- *     italic is a real face, so `<em>` is never synthesised (#615, the audit's T5).
+ *     italic is a real face, so `<em>` is never synthesised (the audit's T5).
  *   JetBrains Mono 400, Latin: the code face (`font-mono`).
  */
 @import "@fontsource-variable/public-sans/wght.css";
@@ -13,7 +13,7 @@
 @import "@fontsource/jetbrains-mono/latin-400.css";
 
 /*
- * THE FALLBACKS, SIZED TO THE FACES THEY STAND IN FOR (#639). Every face above is `font-display:
+ * THE FALLBACKS, SIZED TO THE FACES THEY STAND IN FOR. Every face above is `font-display:
  * swap`, so text first paints in whatever the stack falls back to and is redrawn when the file
  * lands. With an unmatched fallback that redraw moves text: a line rewraps, a right-aligned figure
  * slides, a sidebar foot changes height (measured: the web app's first page shifted on every cold

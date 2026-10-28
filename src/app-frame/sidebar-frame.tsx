@@ -1,5 +1,5 @@
 /**
- * The sidebar frame (#616 point 3): the sidebar app's chrome as parts, composed from Tenure's
+ * The sidebar frame: the sidebar app's chrome as parts, composed from Tenure's
  * `packages/ui/src/knowledge/AppShell.tsx` with every product fact taken out. The product passes its
  * brand, its rows and its foot; the frame owns the geometry (248 px open, 56 px folded to icons,
  * a Sheet on a phone), the remembered fold, and the floor the page sits on.
@@ -10,7 +10,7 @@
  *   </SidebarFrame>
  *
  * NO WORD OF THE PRODUCT'S. The accessible names below have English defaults, which a localised
- * surface replaces; everything visible is passed in (#616 point 5).
+ * surface replaces; everything visible is passed in.
  */
 import type { CSSProperties, ReactNode } from "react";
 import {

@@ -1,5 +1,5 @@
 /**
- * A Lucide glyph by NAME (#616), from Flywheel's `components/Icon.tsx`. Both products are
+ * A Lucide glyph by NAME, from Flywheel's `components/Icon.tsx`. Both products are
  * Lucide-only.
  *
  * ═══════════════════════════════════════════════════════════════════════════════════════

@@ -1,5 +1,5 @@
 /**
- * The package's public shape (#614's `package.json`): every `exports` target exists once built,
+ * The package's public shape (`package.json`): every `exports` target exists once built,
  * is shipped by `files`, and the entries hold what they promise. `pnpm test` builds first
  * (`tsc -b && vitest run`), so `dist/` is the real output here.
  */

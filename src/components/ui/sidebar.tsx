@@ -1,6 +1,6 @@
 /**
  * shadcn/ui `sidebar` (style radix-nova), Tenure's version (`packages/ui/src/components/ui/sidebar.tsx`),
- * which replaces Flywheel's (#616). It is Flywheel's retheme plus two changes: the fold is kept in
+ * which replaces Flywheel's. It is Flywheel's retheme plus two changes: the fold is kept in
  * `localStorage` under a `storageKey` (shadcn's cookie is only ever read back by a server render),
  * and the phone Sheet's title and description and the toggles' names are props, so a surface can
  * localise them. Their English defaults are accessible names only.

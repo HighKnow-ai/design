@@ -1,5 +1,5 @@
 /**
- * One ReadError for both products (#616): they differed only in where the raw message goes.
+ * One ReadError for both products: they differed only in where the raw message goes.
  * Tenure's readers are not developers, so it travels in `title=` and never reaches the page;
  * Flywheel's are, so it folds behind a disclosure. One prop picks.
  */

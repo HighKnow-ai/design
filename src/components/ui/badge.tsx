@@ -1,7 +1,7 @@
 /**
  * shadcn/ui `badge` (style radix-nova), Flywheel's retheme
  * (`flywheel/packages/desktop/src/components/ui/badge.tsx`), with the neutral tones only and a
- * factory a product extends (#615 point 7, #616).
+ * factory a product extends.
  *
  * Pills, 24 px at 13 px semibold. The tones a state may wear are `running` (at work), `destructive`
  * (stopped or failed) and `neutral` (everything else, told apart by its icon and word); `secondary`,

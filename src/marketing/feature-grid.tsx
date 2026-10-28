@@ -1,5 +1,5 @@
 /**
- * The feature grid (#616 point 4): a short list of what something does, each a title and one or
+ * The feature grid: a short list of what something does, each a title and one or
  * two lines, two or three across. A feature is a fact about the product, not a card to press, so
  * an item is a link only when it leads somewhere, and the grid draws no card chrome of its own:
  * columns on the band, divided by a rule.

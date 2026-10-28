@@ -46,7 +46,7 @@ function CommandDialog({
           <DialogDescription>{description}</DialogDescription>
         </DialogHeader>
         {/* cmdk's Input, List and Item read their store from the <Command> root's context; without this root
-            they subscribe to `undefined` and throw (issue #197). */}
+            they subscribe to `undefined` and throw (HighKnow-ai/flywheel#197). */}
         <Command {...(filter === undefined ? {} : { filter })}>{children}</Command>
       </DialogContent>
     </Dialog>

@@ -1,12 +1,12 @@
 /**
- * WHAT A SURFACE THAT IMPORTS ONLY `theme.css` GETS (#618 point 7). Tenure's in-meeting overlay
+ * WHAT A SURFACE THAT IMPORTS ONLY `theme.css` GETS. Tenure's in-meeting overlay
  * imports the theme for its colours, type and motion, and never `base.css` or the `.dark` switch:
  * a `body` background would paint its transparent window, the reduced-motion rewrite would
  * override the rail's own, and a dark scheme the OS chose would change what a customer watching
  * the screen sees. So `theme.css` must declare tokens and utilities and paint nothing, and dark
  * must arrive only by a class the overlay never sets.
  *
- * The overlay's own test (in Tenure, #622) asserts its CSS never imports `base.css`; this one
+ * The overlay's own test (in Tenure) asserts its CSS never imports `base.css`; this one
  * asserts the package's half of the contract.
  */
 import { describe, expect, it } from "vitest";

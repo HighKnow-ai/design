@@ -1,5 +1,5 @@
 /**
- * NO PRODUCT COPY IN THE PACKAGE (#616 point 5, #620). Every visible string is a prop; the only
+ * NO PRODUCT COPY IN THE PACKAGE. Every visible string is a prop; the only
  * exception is an English default for an accessible name, which a localised surface replaces.
  *
  * The scan parses every component with the TypeScript compiler and reads its JSX text: words

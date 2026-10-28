@@ -21,12 +21,12 @@ describe("useDelayedLoading", () => {
   beforeEach(() => vi.useFakeTimers());
   afterEach(() => vi.useRealTimers());
 
-  it("the thresholds are the policy's: 150 ms before, 350 ms held (#638)", () => {
+  it("the thresholds are the policy's: 150 ms before, 350 ms held", () => {
     expect(LOADING_THRESHOLD_MS).toBe(150);
     expect(LOADING_MIN_VISIBLE_MS).toBe(350);
   });
 
-  // THE HOLD HAS A FLOOR, AND IT IS NOT A TASTE (#638): Tenure's opening check (#631, #639) calls
+  // THE HOLD HAS A FLOOR, AND IT IS NOT A TASTE: Tenure's opening check calls
   // anything on screen for under 300 ms a flash, and a skeleton is drawn a frame or two after the
   // timer that shows it fires. A hold of 300 ms or less would fail that check by construction.
   it("holds the skeleton past the 300 ms flash floor, with three frames to spare", () => {
@@ -166,7 +166,7 @@ describe("<Delayed>", () => {
     expect(container.querySelector("[data-loading-phase='ready']")?.className).toMatch(/fade-in/);
   });
 
-  // A PRODUCT MAY REPLACE THE BASE'S FADE (#638: Tenure's rows rise in turn instead), and it needs
+  // A PRODUCT MAY REPLACE THE BASE'S FADE (Tenure's rows rise in turn instead), and it needs
   // a stable hook to do that on, not the fade's utility class names.
   it("marks content that replaced a skeleton as a hand-over, and only that content", () => {
     const { rerender, container } = render(<Region pending />);

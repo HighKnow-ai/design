@@ -1,5 +1,5 @@
 /**
- * The hero (#616 point 4, #617: the hero and index from the prototype's variant B). A left-aligned
+ * The hero (the hero and index from the prototype's variant B). A left-aligned
  * headline on the fluid display ramp, its second sentence in italic ("AI will not slow down.
  * *You can keep up.*"), then a hard rule, then the intro on the `lead` step and prose leading
  * beside an index. There is no image: the headline is the picture.

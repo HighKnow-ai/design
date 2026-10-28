@@ -1,5 +1,5 @@
 /*
- * @highknow/design: the base tokens (#615, #617), as Tailwind 4 theme source.
+ * @highknow/design: the base tokens, as Tailwind 4 theme source.
  *
  *   @import "tailwindcss";
  *   @import "@highknow/design/theme.css";
@@ -13,23 +13,23 @@
  * Taken as it stands, with these changes, each from a resolved ticket:
  *   - Flywheel's own roles are NOT here: `attention`, `strip`, `lamp`, the diff tints, the chart
  *     greys and `--duration-lamp` stay Flywheel's. So do its `--space-*` and radius aliases
- *     (#615: the utilities are the spacing scale; `sm`/`md`/`lg`/`xl` are the radii).
- *   - Tenure's `--running-muted-foreground` joins (#615): secondary text on the brand wash.
- *   - `--font-heading` is defined, as the UI face (#615's defect: Tenure's Card, Dialog, Sheet
+ *     (the utilities are the spacing scale; `sm`/`md`/`lg`/`xl` are the radii).
+ *   - Tenure's `--running-muted-foreground` joins: secondary text on the brand wash.
+ *   - `--font-heading` is defined, as the UI face (a defect: Tenure's Card, Dialog, Sheet
  *     and AlertDialog said `font-heading` and nothing defined it).
  *   - A third shadow, `--shadow-showcase`, display-only, in the shadows' own `rgb(15 20 30)` (the
  *     audit's H1), so a product shot on a page stops hand-picking one.
- *   - The type scale gains `lead` (20 px, intros) and a prose leading (1.65) (#617), and a
- *     three-step fluid display ramp (#615 point 4).
+ *   - The type scale gains `lead` (20 px, intros) and a prose leading (1.65), and a
+ *     three-step fluid display ramp.
  *
  * `lead` WAS ALREADY A NAME. Flywheel called its 52 px step (the board's lead count) `lead`;
- * #617 gives `lead` to the 20 px intro step. The 52 px step is therefore `lead-count` here, which
+ * The type scale gives `lead` to the 20 px intro step. The 52 px step is therefore `lead-count` here, which
  * is Flywheel's own name for what it draws (`docs/design/direction.md` § Type: "52 (the lead
- * count)"). Flywheel's migration (#625) renames its one `text-lead` to `text-lead-count`.
+ * count)"). Flywheel's migration renames its one `text-lead` to `text-lead-count`.
  *
  * NOTHING HERE PAINTS. No `body` background, no focus ring, no reduced-motion rewrite: those are
  * `base.css`, because the overlay imports this file to get the colours, type and motion, and a
- * `body` background would paint its transparent window (#618 point 7; `test/overlay.test.ts`).
+ * `body` background would paint its transparent window (`test/overlay.test.ts`).
  *
  * DARK IS THE `.dark` CLASS on <html>, set before first paint from `prefers-color-scheme` by the
  * surface (as Tenure's `theme-init.js` and Flywheel's `colorScheme.ts` do). It is a class and not
@@ -39,8 +39,8 @@
 @import "./shadcn.css";
 @import "tw-animate-css";
 
-/* The package declares its own content: a consumer writes no `@source` for it (#614;
-   `test/source-in-package.test.ts` keeps this true across Tailwind upgrades). */
+/* The package declares its own content: a consumer writes no `@source` for it
+   (`test/source-in-package.test.ts` keeps this true across Tailwind upgrades). */
 @source "../dist";
 
 @custom-variant dark (&:is(.dark *));
@@ -49,7 +49,7 @@
 :root {
   color-scheme: light;
 
-  /* Each face is followed by its metric-matched fallback (`fonts.css`, #639), so the swap from one
+  /* Each face is followed by its metric-matched fallback (`fonts.css`), so the swap from one
      to the other when the file lands moves no text. */
   --font-ui:
     "Public Sans Variable", "Public Sans Fallback", ui-sans-serif, system-ui, -apple-system,
@@ -107,7 +107,7 @@
        state         160ms  a value changing in place
        overlay       260ms  an overlay arriving or a disclosure opening
        overlay-exit  180ms  the same leaving: exits are faster than entrances
-       breath       2080ms  one cycle of a wait that repeats: Tenure's opening mark (#639), 8 x
+       breath       2080ms  one cycle of a wait that repeats: Tenure's opening mark, 8 x
                             overlay, slow enough to read as calm and not as busy */
   --ease-out-quint: cubic-bezier(0.16, 1, 0.3, 1);
   --ease: var(--ease-out-quint);
@@ -234,7 +234,7 @@
   --text-row--line-height: 1.35;
   --text-section: 17px;
   --text-section--line-height: 1.3;
-  /* #617: an intro paragraph's step, between `section` and `title`. Set a paragraph of it on
+  /* An intro paragraph's step, between `section` and `title`. Set a paragraph of it on
      `leading-prose`; its own leading is for a one-line lead. */
   --text-lead: 20px;
   --text-lead--line-height: 1.4;
@@ -247,11 +247,11 @@
   --text-lead-count: 52px;
   --text-lead-count--line-height: 1;
 
-  /* #617: the UI leadings are a UI's. A marketing paragraph needs this one, so the page never
+  /* The UI leadings are a UI's. A marketing paragraph needs this one, so the page never
      writes its own `leading-[…]` again (the audit's T6). */
   --leading-prose: 1.65;
 
-  /* The fluid display ramp (#615 point 4), for a page's headline only. Each step owns its
+  /* The fluid display ramp, for a page's headline only. Each step owns its
      leading, tracking and weight, so a heading writes none of them. 88 px at most. */
   --text-display-1: clamp(2.75rem, 1.6rem + 4.4vw, 5.5rem);
   --text-display-1--line-height: 1;

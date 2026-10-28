@@ -1,5 +1,5 @@
 /**
- * One region's loading grammar, as a component (#616, from Tenure's `shell/Delayed.tsx`; loading,
+ * One region's loading grammar, as a component (from Tenure's `shell/Delayed.tsx`; loading,
  * empty, failed and unknown are four different facts): nothing for the first 150 ms of a first load, then
  * `fallback` (a skeleton in the region's final geometry) held at least 350 ms, then the content.
  *
@@ -10,7 +10,7 @@
  * under reduced motion it stays (a fade is not movement; `@highknow/design/base.css`).
  *
  * THAT CONTENT ALSO CARRIES `data-handover="skeleton"`, the stable hook a product replaces the
- * fade on (Tenure's rows rise in turn instead, #638). Key on the attribute, never on the fade's
+ * fade on (Tenure's rows rise in turn instead). Key on the attribute, never on the fade's
  * utility classes, and replace the fade rather than adding to it: a fade on a fade reads as lag.
  *
  * `children` MAY BE A FUNCTION, so a caller can write `{() => <List rows={query.data!} />}` and
@@ -54,7 +54,7 @@ export function Delayed({
         </span>
         {/* HIDDEN FROM ASSISTIVE TECHNOLOGY: the status line above says what is loading, and a
             skeleton shaped like a table must never be read, or queried, as the table. */}
-        {/* `display: contents` (#639): the skeleton's blocks are laid out by the same wrapper,
+        {/* `display: contents`: the skeleton's blocks are laid out by the same wrapper,
             and so by the same rules, as the content's (a `flex flex-col gap-4` stacks both
             alike). As a plain block this wrapper made the skeleton one flex item, its blocks
             stacked with no gap, 16 px shorter than the content that replaced it. */}

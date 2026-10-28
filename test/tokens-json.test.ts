@@ -1,6 +1,6 @@
 /**
  * `tokens.json` IS `theme.css`, WRITTEN OUT, for a consumer that is not Tailwind: Tenure's email
- * signature renderer reads its colours from it (#615 point 8), which dissolves Flywheel's vendored
+ * signature renderer reads its colours from it, which dissolves Flywheel's vendored
  * `highknow-tokens.json` loop. It is never edited by hand. When the theme changes, this test fails
  * until the file is regenerated with `pnpm --filter @highknow/design exec vitest run -u`, so the
  * export can never disagree with the CSS it claims to be.

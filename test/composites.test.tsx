@@ -1,6 +1,6 @@
 /**
- * The shared composites (#616 point 2), each through its public props. Every visible word in these
- * tests is passed in: the package carries no product copy (#616 point 5).
+ * The shared composites, each through its public props. Every visible word in these
+ * tests is passed in: the package carries no product copy.
  */
 import { act, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";

@@ -1,6 +1,6 @@
 /**
- * Button and Badge ship the neutral tones only, and a product extends them with its own (#615
- * point 7, #616): Flywheel adds `attention`, and no base carries it for Tenure to promise never to
+ * Button and Badge ship the neutral tones only, and a product extends them with its own:
+ * Flywheel adds `attention`, and no base carries it for Tenure to promise never to
  * use. The extension is a typed factory, so a variant the product did not add is a compile error.
  */
 import { render, screen } from "@testing-library/react";

@@ -1,5 +1,5 @@
 /**
- * A sidebar's rows (#616 point 3), from Tenure's `AppShell` `NavRow`, with its product facts (the
+ * A sidebar's rows, from Tenure's `AppShell` `NavRow`, with its product facts (the
  * icon table keyed on Tenure's page ids, the review-queue badge) taken out: the product passes the
  * icon, the badge and its announcement.
  *

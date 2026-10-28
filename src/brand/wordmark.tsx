@@ -1,12 +1,12 @@
 /**
- * The logo and the name, drawn as inline SVG paths (#616), from Tenure's
+ * The logo and the name, drawn as inline SVG paths, from Tenure's
  * `packages/ui/src/brand/Wordmark.tsx`. Flywheel drew the mark itself; both now draw this one.
  *
  * INLINE PATHS, NEVER A RASTER IMAGE AND NEVER AN ICON FONT: colour and size stay this component's,
  * not the browser's image pipeline's. The tile is fixed at `#3c64dd`, the pinned brand hex, in
  * both schemes: the mark is not a token that varies by scheme. The name follows the text colour.
  *
- * TWO CHANGES FROM TENURE'S, BOTH FROM #617's PROTOTYPE:
+ * TWO CHANGES FROM TENURE'S, BOTH FROM THE MARKETING PROTOTYPE:
  *   - The root merges `className` with `cn()`, so a responsive `hidden` passed in wins over its
  *     own `inline-flex` (the apex had to wrap it in a span to hide it).
  *   - The name carries `data-wordmark-name`, so a condensing header can fold it away without

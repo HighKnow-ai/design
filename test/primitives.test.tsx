@@ -1,5 +1,5 @@
 /**
- * The two primitives Tenure's copies replace (#616): the Skeleton that stops under reduced motion,
+ * The two primitives Tenure's copies replace: the Skeleton that stops under reduced motion,
  * and the Sidebar that remembers its fold and takes its labels.
  */
 import { render, screen } from "@testing-library/react";

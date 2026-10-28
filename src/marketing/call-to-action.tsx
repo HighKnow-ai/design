@@ -1,7 +1,7 @@
 /**
- * The call to action (#616 point 4): a closing heading on the display ramp's smallest step, one
+ * The call to action: a closing heading on the display ramp's smallest step, one
  * line, and the page's actions. The actions are the caller's `Button`s: one filled primary at
- * most, and the ghost or outline beside it draws its boundary on `--input` (#615's defect: the
+ * most, and the ghost or outline beside it draws its boundary on `--input` (a defect: the
  * apex's ghost call to action measured 1.52:1 against WCAG 1.4.11's 3:1).
  */
 import type { ReactNode } from "react";

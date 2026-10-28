@@ -1,8 +1,9 @@
 /**
- * The marketing parts (#616 point 4, #617), a separate entry an app never imports: the site
+ * The marketing parts, a separate entry an app never imports: the site
  * header, the footer, the section band, the hero, the feature grid and the call to action. Every
  * word is passed in, and every part takes `className` cleanly: a passed class wins over the part's
- * own, which is the defect #617's prototype found in the shared `Wordmark` and `LanguageSwitcher`.
+ * own, which is the defect the marketing prototype found in the shared `Wordmark` and
+ * `LanguageSwitcher`.
  */
 import { act, fireEvent, render, screen } from "@testing-library/react";
 import { renderToStaticMarkup } from "react-dom/server";

@@ -1,6 +1,6 @@
 /**
  * The mark's glyph — the lightbulb holding a brain whose two halves read "HK" — as the white paths
- * `Wordmark` has always drawn, moved here unchanged so the favicon and app-icon set (#476) draws
+ * `Wordmark` has always drawn, moved here unchanged so the favicon and app-icon set draws
  * the same paths rather than a copy that could drift from them.
  *
  * Coordinates are `docs/design/assets/logo.svg`'s 1024 box. `scale` is the glyph's size on its

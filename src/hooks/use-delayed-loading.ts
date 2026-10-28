@@ -1,5 +1,5 @@
 /**
- * The one loading gate, the base's loading policy (#615 point 6; loading, empty, failed and
+ * The one loading gate, the base's loading policy (loading, empty, failed and
  * unknown are four different facts): nothing for 150 ms, then the loading treatment, held at
  * least 350 ms once it has appeared.
  *
@@ -9,16 +9,16 @@
  * Past 150 ms the person has noticed the wait, and a blank region is then the wrong answer, so
  * the caller shows a skeleton in the region's own final shape.
  *
- * ONCE SHOWN, IT STAYS AT LEAST 350 ms (400 until #638 re-measured the reads). A skeleton that
+ * ONCE SHOWN, IT STAYS AT LEAST 350 ms (400 until the reads were re-measured). A skeleton that
  * appears at 150 ms and is replaced at 170 ms blinks, which reads as a fault. 350 is the shortest
- * hold that is not itself a flash: Tenure's opening check (#631) counts anything on screen for
+ * hold that is not itself a flash: Tenure's opening check counts anything on screen for
  * under 300 ms as one, and the skeleton is painted a frame or two after the timer below fires,
  * so the floor is 300 plus three frames, rounded. So the flag stays `true` after `isPending` ends until
  * the skeleton has been on screen for {@link LOADING_MIN_VISIBLE_MS}; a caller therefore checks
  * this flag BEFORE it checks for data (`<Delayed>` does that for it).
  *
  * Copied from Tenure's `packages/ui/src/shell/useDelayedLoading.ts`, where it had already
- * replaced four private copies. Flywheel adopts it with this package (#615 point 6), in place of
+ * replaced four private copies. Flywheel adopts it with this package, in place of
  * its immediate skeleton.
  */
 import { useLayoutEffect, useRef, useState } from "react";

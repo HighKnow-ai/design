@@ -1,5 +1,5 @@
 /**
- * The page body (#616 point 3): the page's measure and its vertical rhythm, from Tenure's
+ * The page body: the page's measure and its vertical rhythm, from Tenure's
  * `AppShell` body. `reading` is the products' 920 px column, `wide` a table or a board, `full` the
  * window. `surface="card"` draws the whole body on one white card (a page that predates cards of
  * its own); `"floor"` leaves the page to draw its own cards on the grey floor.

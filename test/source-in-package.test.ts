@@ -1,5 +1,5 @@
 /**
- * A CONSUMER GETS THE PACKAGE'S CLASSES WITHOUT NAMING THEM (#614 § Tailwind 4, #620).
+ * A CONSUMER GETS THE PACKAGE'S CLASSES WITHOUT NAMING THEM.
  *
  * `css/theme.css` carries `@source "../dist"`, so an app that imports the theme has Tailwind
  * scan the package's compiled components, and writes no `@source` of its own. Tailwind documents
