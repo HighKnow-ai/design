@@ -27,6 +27,8 @@ jobs:
   test:
     name: Install, build and test
     runs-on: ubuntu-latest
+    # Bounded: observed max 0.6 min.
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -64,6 +66,8 @@ jobs:
     if: always()
     needs: [test]
     runs-on: ubuntu-latest
+    # Bounded: an aggregate of `needs`: observed 0.1 min.
+    timeout-minutes: 5
     steps:
       - name: Every job passed
         env:
@@ -89,6 +93,8 @@ jobs:
     needs: [build]
     if: github.event_name == 'push' && github.ref == 'refs/heads/next'
     runs-on: ubuntu-latest
+    # Bounded: one fast-forward push: observed 0.2 min.
+    timeout-minutes: 5
     permissions:
       contents: read
     steps:

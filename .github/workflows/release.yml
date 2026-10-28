@@ -26,6 +26,8 @@ permissions:
 jobs:
   release:
     runs-on: ubuntu-latest
+    # Bounded: observed 1.7 min (one run).
+    timeout-minutes: 10
     # One publish per tag, never two at once.
     concurrency:
       group: release-${{ github.ref }}
