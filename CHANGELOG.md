@@ -13,8 +13,9 @@ workspace. A release is the tag `design-vX.Y.Z` on the commit that carries its e
 
 ## Unreleased
 
-From Tenure's page motion and re-tuned loading floor. Flywheel stays on its exact `0.1.0`
-pin until this ships as a release.
+## 0.2.0 — 2026-10-29
+
+From Tenure's page motion and re-tuned loading floor.
 
 #### Components
 

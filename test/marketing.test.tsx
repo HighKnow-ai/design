@@ -7,7 +7,7 @@
  */
 import { act, fireEvent, render, screen } from "@testing-library/react";
 import { renderToStaticMarkup } from "react-dom/server";
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it } from "vitest";
 import {
   CallToAction,
   FeatureGrid,
@@ -35,6 +35,20 @@ function Header() {
 }
 
 describe("SiteHeader", () => {
+  // jsdom's `window.scrollY` is a plain own property, and a test scrolls by redefining it. The
+  // redefinition outlives the test unless it is put back: under a shuffled order "stays open when
+  // asked not to condense" ran first and left 200, so the next test's header started condensed
+  // instead. Each test therefore scrolls through `scrollTo`, and the original comes back after it.
+  const originalScrollY = Object.getOwnPropertyDescriptor(window, "scrollY");
+  const scrollTo = (y: number) => {
+    Object.defineProperty(window, "scrollY", { configurable: true, value: y });
+    fireEvent.scroll(window);
+  };
+  afterEach(() => {
+    if (originalScrollY) Object.defineProperty(window, "scrollY", originalScrollY);
+    else Reflect.deleteProperty(window, "scrollY");
+  });
+
   it("works fully with no JavaScript: rendered on the server, it is the open header", () => {
     const html = renderToStaticMarkup(<Header />);
     expect(html).toContain('data-condensed="false"');
@@ -46,24 +60,15 @@ describe("SiteHeader", () => {
     render(<Header />);
     const header = screen.getByRole("banner");
     expect(header).toHaveAttribute("data-condensed", "false");
-    act(() => {
-      Object.defineProperty(window, "scrollY", { configurable: true, value: 200 });
-      fireEvent.scroll(window);
-    });
+    act(() => scrollTo(200));
     expect(header).toHaveAttribute("data-condensed", "true");
-    act(() => {
-      Object.defineProperty(window, "scrollY", { configurable: true, value: 0 });
-      fireEvent.scroll(window);
-    });
+    act(() => scrollTo(0));
     expect(header).toHaveAttribute("data-condensed", "false");
   });
 
   it("stays open when asked not to condense", () => {
     render(<SiteHeader brand={<span>HighKnow</span>} condense={false} />);
-    act(() => {
-      Object.defineProperty(window, "scrollY", { configurable: true, value: 200 });
-      fireEvent.scroll(window);
-    });
+    act(() => scrollTo(200));
     expect(screen.getByRole("banner")).toHaveAttribute("data-condensed", "false");
   });
 });

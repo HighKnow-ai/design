@@ -1,6 +1,6 @@
 {
   "name": "@highknow/design",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "HighKnow's design system: the base tokens, the fonts and the React components every HighKnow surface is built from.",
   "license": "MIT",
   "type": "module",
