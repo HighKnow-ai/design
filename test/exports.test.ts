@@ -54,8 +54,11 @@ describe("package.json", () => {
     };
     const scoped = Object.keys(all).filter((name) => name.split("/")[0] === "@highknow");
     expect(scoped).toEqual([]);
+    // `catalog:` is the workspace this package is developed in: a dependency it shares with other
+    // packages there takes its version from one pnpm catalog, whose entries are exact versions, and
+    // the published package.json carries that version in its place. A range is refused either way.
     for (const [name, spec] of Object.entries(manifest.dependencies)) {
-      expect(spec, name).toMatch(/^\d+\.\d+\.\d+$/);
+      expect(spec, name).toMatch(/^(\d+\.\d+\.\d+|catalog:)$/);
     }
   });
 });
