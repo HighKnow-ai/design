@@ -37,11 +37,23 @@ jobs:
         with:
           node-version: 24.19.0
       # pnpm by exact version through npm, so no further action is trusted with the job.
-      - run: npm install --global pnpm@11.21.0
+      - run: npm install --global pnpm@11.21.0 # zizmor: ignore[adhoc-packages] an exact version, as the comment above says
       - run: pnpm install --frozen-lockfile
       - run: pnpm run build
       - run: pnpm run typecheck
       - run: pnpm test
+
+      # THE WORKFLOWS THEMSELVES, where they run: zizmor's security audits (template injection,
+      # permissions, persisted credentials, cache poisoning) and actionlint's schema checks, each
+      # at an exact version. The private source of truth runs both before every export; this copy
+      # covers a pull request opened here. A finding that is a deliberate design carries a
+      # `# zizmor: ignore[...]` at its line with the reason above it. actionlint's shellcheck pass
+      # is off here (`-shellcheck=`) because the runner's shellcheck is not pinned; the source of
+      # truth runs it with a pinned one.
+      - name: Lint the workflows (zizmor, actionlint)
+        run: |
+          pipx run zizmor==1.31.1 --offline --quiet .github/workflows
+          go run github.com/rhysd/actionlint/cmd/actionlint@v1.7.12 -shellcheck= -oneline .github/workflows/*.yml
       # What npm would publish, read rather than assumed: the compiled entry points and the CSS
       # must be in the tarball, and nothing from the tests.
       - name: The package contents
@@ -98,7 +110,7 @@ jobs:
     permissions:
       contents: read
     steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1 # zizmor: ignore[artipacked] the deploy key is for the promote push below
         with:
           fetch-depth: 0
           ssh-key: ${{ secrets.PROMOTE_DEPLOY_KEY }}
