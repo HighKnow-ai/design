@@ -19,6 +19,8 @@ workspace. A release is the tag `design-vX.Y.Z` on the commit that carries its e
   every name computation: the space is now a text node beside the `sr-only` span rather than its
   first character, which Testing Library's computation trims once jsdom 30 reports the span as
   `inline` ("Review queue(3 new)"). Nothing changes on screen. Patch.
+- `ReadError` no longer shows "[object Object]" when the error it is given cannot be serialised (a
+  cycle, a BigInt): it shows the message without a detail line instead. Patch.
 
 ## 0.2.0 — 2026-10-29
 
