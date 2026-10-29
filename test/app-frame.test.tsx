@@ -77,7 +77,11 @@ describe("SidebarFrame, NavGroup and NavItem", () => {
             href="/ask"
             label="Ask"
             onSelect={onSelect}
-            renderLink={(props) => <a data-router-link="" {...props} />}
+            renderLink={({ children, ...props }) => (
+              <a data-router-link="" {...props}>
+                {children}
+              </a>
+            )}
           />
         }
       >

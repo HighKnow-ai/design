@@ -64,7 +64,9 @@ export function messageOf(error: unknown): string | undefined {
   try {
     return JSON.stringify(error);
   } catch {
-    return String(error);
+    // Not serialisable (a cycle, a BigInt): `String()` would show "[object Object]", which is
+    // nothing worth showing.
+    return undefined;
   }
 }
 

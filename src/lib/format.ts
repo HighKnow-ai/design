@@ -25,7 +25,7 @@ export function toEpochMs(at: TimeInput): number | null {
 export function formatRelativeTime(
   at: TimeInput,
   now: number = Date.now(),
-  locale?: string | undefined,
+  locale?: string,
 ): string {
   const ms = toEpochMs(at);
   if (ms === null) return MISSING;
@@ -46,7 +46,7 @@ export function formatRelativeTime(
 }
 
 /** The absolute date and time, for the Tooltip behind a relative time. */
-export function formatAbsoluteTime(at: TimeInput, locale?: string | undefined): string {
+export function formatAbsoluteTime(at: TimeInput, locale?: string): string {
   const ms = toEpochMs(at);
   if (ms === null) return MISSING;
   return new Intl.DateTimeFormat(locale, { dateStyle: "medium", timeStyle: "short" }).format(

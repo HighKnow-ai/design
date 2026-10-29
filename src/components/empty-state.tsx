@@ -38,6 +38,7 @@ export function EmptyState({ heading, body, action, className }: EmptyStateProps
       </EmptyHeader>
       {action !== undefined ? (
         <EmptyContent>
+          {/* eslint-disable-next-line jsx-a11y/no-autofocus -- the one action takes focus: it is all the surface offers (EmptyStateProps.action) */}
           <Button variant="default" autoFocus onClick={action.onAction}>
             {action.label}
           </Button>
