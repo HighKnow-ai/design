@@ -56,7 +56,8 @@ describe("SidebarFrame, NavGroup and NavItem", () => {
   it("marks the current row, and announces a row's badge after its label", () => {
     render(<Frame />);
     expect(screen.getByRole("link", { name: /Meetings/ })).toHaveAttribute("aria-current", "page");
-    const review = screen.getByRole("link", { name: /Review queue/ });
+    // The exact name, space included: a regex would pass "Review queue(3 new)" too.
+    const review = screen.getByRole("link", { name: "Review queue (3 new)" });
     expect(review).not.toHaveAttribute("aria-current");
     expect(review).toHaveTextContent("(3 new)");
   });

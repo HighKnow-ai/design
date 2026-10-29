@@ -13,6 +13,13 @@ workspace. A release is the tag `design-vX.Y.Z` on the commit that carries its e
 
 ## Unreleased
 
+#### Fixes
+
+- `NavItem`'s badge announcement keeps the space before it in the link's accessible name under
+  every name computation: the space is now a text node beside the `sr-only` span rather than its
+  first character, which Testing Library's computation trims once jsdom 30 reports the span as
+  `inline` ("Review queue(3 new)"). Nothing changes on screen. Patch.
+
 ## 0.2.0 — 2026-10-29
 
 From Tenure's page motion and re-tuned loading floor.

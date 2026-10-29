@@ -103,8 +103,16 @@ export function NavItem({
     <>
       {icon}
       <span>{label}</span>
+      {/* THE SPACE IS A SIBLING TEXT NODE, NOT THE SPAN'S FIRST CHARACTER. A name computation that
+          trims each child's text before joining inline children (dom-accessibility-api, which
+          Testing Library uses, once jsdom 30 reports a span as `inline`) loses a leading space
+          inside the span and reads "Review queue(3 new)". A whitespace-only node between flex
+          items is not drawn, so nothing moves on screen. */}
       {shown !== null ? (
-        <span className="sr-only"> {badgeAnnouncement ?? `(${shown})`}</span>
+        <>
+          {" "}
+          <span className="sr-only">{badgeAnnouncement ?? `(${shown})`}</span>
+        </>
       ) : null}
     </>
   );
