@@ -1,9 +1,10 @@
 name: CI
 # Every change arrives on `next`: this repository is the public export of a private source of truth,
-# which pushes each change there and never to `main`. A green run on `next` fast-forwards `main` to
-# the commit it tested (`promote`, at the end), so `main` only ever holds commits this workflow
-# passed, and a release tag is only ever pushed at a commit on `main`. A pull request runs once,
-# on pull_request; it is not merged here but taken into the source of truth.
+# which pushes each change there. `main` moves only when a release is cut: the export fast-forwards
+# it to the commit being released, and the ruleset on `main` refuses that push unless `build` below
+# passed on that very commit, so `main` only ever holds commits this workflow passed, and a release
+# tag is only ever pushed at a commit on `main`. Nothing here pushes. A pull request runs once, on
+# pull_request; it is not merged here but taken into the source of truth.
 #
 # UBUNTU ONLY, on the standard hosted runner, which a public repository does not pay for. The
 # package is TypeScript and CSS, and its tests run in jsdom. The install is the lockfile's, exactly
@@ -91,42 +92,3 @@ jobs:
             echo "::error::not passed: $(echo $failed)"
             exit 1
           fi
-
-  # `next` -> `main`, the tested commit and nothing else, fast-forward only.
-  #
-  # WITH A DEPLOY KEY (PROMOTE_DEPLOY_KEY, write access to this repository alone), because
-  # GITHUB_TOKEN cannot push a range that changes .github/workflows/, and the export App's key is
-  # installed on the private repository too. What makes the push safe is the two rulesets on
-  # `main`: `main` requires `build` on the pushed commit of everybody, this key included, and
-  # refuses force-pushes and deletion; `main-writers` refuses every push except from a deploy key
-  # or an admin through a pull request.
-  promote:
-    name: Fast-forward main
-    needs: [build]
-    if: github.event_name == 'push' && github.ref == 'refs/heads/next'
-    runs-on: ubuntu-latest
-    # Bounded: one fast-forward push: observed 0.2 min.
-    timeout-minutes: 5
-    permissions:
-      contents: read
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1 # zizmor: ignore[artipacked] the deploy key is for the promote push below
-        with:
-          fetch-depth: 0
-          ssh-key: ${{ secrets.PROMOTE_DEPLOY_KEY }}
-
-      - name: Fast-forward main to the tested commit
-        env:
-          TESTED: ${{ github.sha }}
-        run: |
-          git fetch --quiet origin main
-          if git merge-base --is-ancestor "$TESTED" origin/main; then
-            echo "main already contains $TESTED"
-            exit 0
-          fi
-          if ! git merge-base --is-ancestor origin/main "$TESTED"; then
-            echo "::error::$TESTED does not descend from main ($(git rev-parse origin/main)); refusing to rewrite main"
-            exit 1
-          fi
-          git push origin "$TESTED:refs/heads/main"
-          echo "main -> $TESTED"
