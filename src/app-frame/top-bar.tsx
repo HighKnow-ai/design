@@ -49,7 +49,11 @@ export function TopBar({
   // THE SECTION IS THE TITLE'S SKELETON AND KEEPS THE LOADING RULE: nothing for 150 ms,
   // then the section, held at least 350 ms once shown. Drawn at once, it flashed for as long as a
   // title took to land (170 ms on a meeting's direct load, measured by Tenure's opening check).
-  const showSection = useDelayedLoading(title === undefined) && section !== undefined;
+  // THE WAIT IS FOR THE SECTION, NOT ONLY FOR THE TITLE: a bar with neither (an app's opening,
+  // before any row is current) has nothing to hold. Gated on the title alone, the gate opened and
+  // its hold ran out while there was no section to draw, and the section that arrived next with
+  // the first page was then drawn at once and dropped as its title landed, 67 ms later.
+  const showSection = useDelayedLoading(title === undefined && section !== undefined);
   return (
     <header
       data-slot="top-bar"

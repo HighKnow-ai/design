@@ -15,6 +15,18 @@ workspace. A release is the tag `design-vX.Y.Z` on the commit that carries its e
 
 #### Fixes
 
+- The loading hold (`useDelayedLoading`, so `Delayed`, `useLoadingPhase` and `TopBar`'s
+  `section`) counts its 350 ms from the animation frame that first paints the loading treatment,
+  not from the timer that raised it. The render, commit and frame between the two came off the
+  hold (skeletons were measured on screen for 335 ms of their 350), and a busy main thread could
+  take more than the margin; counted from the frame, they measure 351 ms. A treatment raised in a hidden
+  tab and never painted is dropped as soon as its wait ends. A test that fakes timers but not
+  `requestAnimationFrame` and `performance` no longer sees the hold end: fake those too. Patch.
+- `TopBar` waits for its `section` itself, not only for the title: a bar that had neither (an
+  app's opening) no longer spends the section's 150 ms and its hold before there is a section,
+  which then drew the section that arrived with the first page at once and dropped it 67 ms later.
+  Patch.
+
 - `NavItem`'s badge announcement keeps the space before it in the link's accessible name under
   every name computation: the space is now a text node beside the `sr-only` span rather than its
   first character, which Testing Library's computation trims once jsdom 30 reports the span as

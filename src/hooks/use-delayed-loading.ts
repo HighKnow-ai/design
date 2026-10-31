@@ -12,10 +12,11 @@
  * ONCE SHOWN, IT STAYS AT LEAST 350 ms (400 until the reads were re-measured). A skeleton that
  * appears at 150 ms and is replaced at 170 ms blinks, which reads as a fault. 350 is the shortest
  * hold that is not itself a flash: Tenure's opening check counts anything on screen for
- * under 300 ms as one, and the skeleton is painted a frame or two after the timer below fires,
- * so the floor is 300 plus three frames, rounded. So the flag stays `true` after `isPending` ends until
- * the skeleton has been on screen for {@link LOADING_MIN_VISIBLE_MS}; a caller therefore checks
- * this flag BEFORE it checks for data (`<Delayed>` does that for it).
+ * under 300 ms as one, and 350 is that floor plus three frames, rounded. The hold is counted from
+ * the frame that first paints the skeleton, not from the timer that raised it, so a loaded
+ * machine that paints late cannot eat into it (below). So the flag stays `true` after
+ * `isPending` ends until the skeleton has been on screen for {@link LOADING_MIN_VISIBLE_MS}; a
+ * caller therefore checks this flag BEFORE it checks for data (`<Delayed>` does that for it).
  *
  * Copied from Tenure's `packages/ui/src/shell/useDelayedLoading.ts`, where it had already
  * replaced four private copies. Flywheel adopts it with this package, in place of
@@ -36,7 +37,31 @@ export const LOADING_MIN_VISIBLE_MS = 350;
  */
 export function useDelayedLoading(isPending: boolean): boolean {
   const [show, setShow] = useState(false);
+  /** When the frame that first paints the treatment ran; `null` until it has. */
   const shownAt = useRef<number | null>(null);
+
+  // THE HOLD COUNTS FROM THE FRAME THAT PAINTS THE TREATMENT, NOT FROM THE TIMER THAT RAISED IT.
+  // Between the two sit a render, a commit and the wait for the next frame, and every millisecond
+  // of that came off the hold: Tenure's opening check measured skeletons on screen for 335 ms of
+  // their 350, idle and loaded alike, and a main thread busy for longer than the margin (a page
+  // still parsing its scripts) would have made the hold itself a flash. Counted from the frame,
+  // the same check measures 351 ms at a load average of 50.
+  // The commit that raises it asks for the next animation frame, the one that draws it, and the
+  // clock starts there. A layout effect, so the frame is asked for inside that commit; declared
+  // before the effect below, so on a commit that also ends the wait this frame is asked for
+  // first, and runs first.
+  useLayoutEffect(() => {
+    if (!show) return undefined;
+    if (typeof requestAnimationFrame !== "function") {
+      // Nothing paints frames here (a test renderer): the commit is as close as it gets.
+      shownAt.current = performance.now();
+      return undefined;
+    }
+    const frame = requestAnimationFrame(() => {
+      shownAt.current = performance.now();
+    });
+    return () => cancelAnimationFrame(frame);
+  }, [show]);
 
   // A LAYOUT EFFECT, NOT A PASSIVE ONE: LOAD-BEARING (tenure-v0.3.18). The commit that draws the
   // landed content must also cancel the 150 ms timer. A passive effect's cleanup runs in a later
@@ -47,24 +72,36 @@ export function useDelayedLoading(isPending: boolean): boolean {
   useLayoutEffect(() => {
     if (isPending) {
       if (show) return undefined;
-      const timer = setTimeout(() => {
-        shownAt.current = Date.now();
-        setShow(true);
-      }, LOADING_THRESHOLD_MS);
+      const timer = setTimeout(() => setShow(true), LOADING_THRESHOLD_MS);
       return () => clearTimeout(timer);
     }
     if (!show) return undefined;
-    const remaining = LOADING_MIN_VISIBLE_MS - (Date.now() - (shownAt.current ?? 0));
     const hide = () => {
       shownAt.current = null;
       setShow(false);
     };
-    if (remaining <= 0) {
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    let frame: number | undefined;
+    const holdFrom = (paintedAt: number) => {
+      const remaining = LOADING_MIN_VISIBLE_MS - (performance.now() - paintedAt);
+      if (remaining <= 0) hide();
+      else timer = setTimeout(hide, remaining);
+    };
+    if (shownAt.current !== null) {
+      holdFrom(shownAt.current);
+    } else if (document.visibilityState === "hidden") {
+      // Raised in a tab nobody is looking at, and never painted: nobody has seen it to be held.
       hide();
       return undefined;
+    } else {
+      // The wait ended before the treatment's first frame. That frame, asked for first above,
+      // starts the clock; this callback runs in the same frame, after it, and holds from there.
+      frame = requestAnimationFrame(() => holdFrom(shownAt.current ?? performance.now()));
     }
-    const timer = setTimeout(hide, remaining);
-    return () => clearTimeout(timer);
+    return () => {
+      clearTimeout(timer);
+      if (frame !== undefined) cancelAnimationFrame(frame);
+    };
   }, [isPending, show]);
 
   return show;

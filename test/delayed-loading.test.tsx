@@ -1,8 +1,9 @@
 /**
  * The loading gate (decision 212): nothing for 150 ms, then the skeleton, held at least 350 ms
- * once shown; a fresh clock per wait. Driven with fake timers (which fake `Date.now` too), so
- * every boundary is asserted at the millisecond rather than raced, except the one suite at the
- * end, which needs the real event loop.
+ * from the frame that first paints it; a fresh clock per wait. Driven with fake timers (which
+ * fake `performance.now` and `requestAnimationFrame` too, a frame every 16 ms), so every boundary
+ * is asserted at the millisecond rather than raced, except the one suite at the end, which needs
+ * the real event loop.
  */
 import { useEffect, useState } from "react";
 import { act, render, renderHook, screen } from "@testing-library/react";
@@ -16,6 +17,52 @@ import {
 } from "../src/index.js";
 
 const advance = (ms: number) => act(() => void vi.advanceTimersByTime(ms));
+/** Runs the clock to `at`, a `performance.now()` time. */
+const advanceTo = (at: number) => advance(at - performance.now());
+
+/** The fake clock draws a frame every 16 ms: the next one is never further away than this. */
+const FRAME_MS = 16;
+
+/**
+ * Runs the clock to the next animation frame, the one that paints what the last commit drew, and
+ * returns its time. Asked for after the commit, so it runs after the gate's own frame callback.
+ * A step of its own: `act` commits when it returns, so a commit only happens between steps.
+ */
+const paint = (): number => {
+  let at = Number.NaN;
+  requestAnimationFrame(() => {
+    at = performance.now();
+  });
+  advance(FRAME_MS);
+  return at;
+};
+
+/**
+ * A renderer short of CPU: frames are asked for and run only when `run` says so, as late as a
+ * loaded machine paints them. Undone by `vi.unstubAllGlobals()`.
+ */
+function starveFrames(): { readonly run: () => void } {
+  let queue: FrameRequestCallback[] = [];
+  const ids = new Map<number, FrameRequestCallback>();
+  let next = 1;
+  vi.stubGlobal("requestAnimationFrame", (callback: FrameRequestCallback) => {
+    ids.set(next, callback);
+    queue.push(callback);
+    return next++;
+  });
+  vi.stubGlobal("cancelAnimationFrame", (id: number) => {
+    const callback = ids.get(id);
+    queue = queue.filter((queued) => queued !== callback);
+  });
+  return {
+    run: () =>
+      act(() => {
+        const due = queue;
+        queue = [];
+        for (const callback of due) callback(performance.now());
+      }),
+  };
+}
 
 describe("useDelayedLoading", () => {
   beforeEach(() => vi.useFakeTimers());
@@ -52,27 +99,74 @@ describe("useDelayedLoading", () => {
     expect(result.current).toBe(false);
   });
 
-  it("once shown, holds for 350 ms even when the wait ends at once", () => {
+  it("once painted, holds for 350 ms even when the wait ends at once", () => {
     const { result, rerender } = renderHook(({ p }) => useDelayedLoading(p), {
       initialProps: { p: true },
     });
     advance(LOADING_THRESHOLD_MS);
     expect(result.current).toBe(true);
-    // The data lands 20 ms after the skeleton appeared: hiding it now would be a blink.
-    advance(20);
+    const paintedAt = paint();
+    // The data lands as the skeleton is first drawn: hiding it now would be a blink.
     rerender({ p: false });
     expect(result.current).toBe(true);
-    advance(LOADING_MIN_VISIBLE_MS - 20 - 1);
+    advanceTo(paintedAt + LOADING_MIN_VISIBLE_MS - 1);
     expect(result.current).toBe(true);
     advance(1);
     expect(result.current).toBe(false);
+  });
+
+  // THE TEST THAT FAILS IF THE HOLD IS COUNTED FROM THE TIMER AGAIN. Counted from the timer that
+  // raised the skeleton, a frame 300 ms late (measured on a loaded machine) leaves it on screen
+  // for 50 ms of its 350: the flash the hold exists to prevent.
+  it("holds 350 ms from the frame that paints it, however late that frame comes", () => {
+    const frames = starveFrames();
+    try {
+      const { result, rerender } = renderHook(({ p }) => useDelayedLoading(p), {
+        initialProps: { p: true },
+      });
+      advance(LOADING_THRESHOLD_MS);
+      expect(result.current).toBe(true);
+      // The data lands 10 ms later, before the skeleton has been drawn at all.
+      advance(10);
+      rerender({ p: false });
+      // The renderer is starved: no frame for 300 ms, so nothing has been on screen to hold yet.
+      advance(290);
+      expect(result.current).toBe(true);
+      const paintedAt = performance.now();
+      frames.run();
+      advanceTo(paintedAt + LOADING_MIN_VISIBLE_MS - 1);
+      expect(result.current).toBe(true);
+      advance(1);
+      expect(result.current).toBe(false);
+    } finally {
+      vi.unstubAllGlobals();
+    }
+  });
+
+  it("drops at once a skeleton raised in a hidden tab and never painted", () => {
+    starveFrames(); // a hidden tab runs no frames
+    const hidden = vi.spyOn(document, "visibilityState", "get").mockReturnValue("hidden");
+    try {
+      const { result, rerender } = renderHook(({ p }) => useDelayedLoading(p), {
+        initialProps: { p: true },
+      });
+      advance(LOADING_THRESHOLD_MS);
+      expect(result.current).toBe(true);
+      rerender({ p: false });
+      expect(result.current).toBe(false);
+    } finally {
+      hidden.mockRestore();
+      vi.unstubAllGlobals();
+    }
   });
 
   it("hides at once when the wait ends after the skeleton has already been up 350 ms", () => {
     const { result, rerender } = renderHook(({ p }) => useDelayedLoading(p), {
       initialProps: { p: true },
     });
-    advance(LOADING_THRESHOLD_MS + LOADING_MIN_VISIBLE_MS + 50);
+    advance(LOADING_THRESHOLD_MS);
+    const paintedAt = paint();
+    advanceTo(paintedAt + LOADING_MIN_VISIBLE_MS + 50);
     expect(result.current).toBe(true);
     rerender({ p: false });
     expect(result.current).toBe(false);
@@ -82,7 +176,9 @@ describe("useDelayedLoading", () => {
     const { result, rerender } = renderHook(({ p }) => useDelayedLoading(p), {
       initialProps: { p: true },
     });
-    advance(LOADING_THRESHOLD_MS + LOADING_MIN_VISIBLE_MS);
+    advance(LOADING_THRESHOLD_MS);
+    const paintedAt = paint();
+    advanceTo(paintedAt + LOADING_MIN_VISIBLE_MS);
     rerender({ p: false });
     expect(result.current).toBe(false);
     rerender({ p: true });
@@ -110,9 +206,10 @@ describe("useLoadingPhase", () => {
     expect(result.current).toBe("blank");
     advance(LOADING_THRESHOLD_MS);
     expect(result.current).toBe("skeleton");
+    const paintedAt = paint();
     rerender({ p: false });
     expect(result.current).toBe("skeleton");
-    advance(LOADING_MIN_VISIBLE_MS);
+    advanceTo(paintedAt + LOADING_MIN_VISIBLE_MS);
     expect(result.current).toBe("ready");
   });
 
@@ -157,11 +254,12 @@ describe("<Delayed>", () => {
   it("keeps the skeleton for 350 ms after it appeared, then cross-fades the content in", () => {
     const { rerender, container } = render(<Region pending />);
     advance(LOADING_THRESHOLD_MS);
+    const paintedAt = paint();
     rerender(<Region pending={false} />);
-    // The data is here, but the skeleton has only been up for 0 ms: it stays.
+    // The data is here, but the skeleton has only just been drawn: it stays.
     expect(screen.getByTestId("skeleton")).toBeInTheDocument();
     expect(screen.queryByText("The meetings")).toBeNull();
-    advance(LOADING_MIN_VISIBLE_MS);
+    advanceTo(paintedAt + LOADING_MIN_VISIBLE_MS);
     expect(screen.getByText("The meetings")).toBeInTheDocument();
     expect(container.querySelector("[data-loading-phase='ready']")?.className).toMatch(/fade-in/);
   });
@@ -171,8 +269,9 @@ describe("<Delayed>", () => {
   it("marks content that replaced a skeleton as a hand-over, and only that content", () => {
     const { rerender, container } = render(<Region pending />);
     advance(LOADING_THRESHOLD_MS);
+    const paintedAt = paint();
     rerender(<Region pending={false} />);
-    advance(LOADING_MIN_VISIBLE_MS);
+    advanceTo(paintedAt + LOADING_MIN_VISIBLE_MS);
     expect(container.querySelector("[data-loading-phase='ready']")).toHaveAttribute(
       "data-handover",
       "skeleton",
@@ -211,7 +310,7 @@ describe("<Delayed>", () => {
         {child}
       </Delayed>,
     );
-    advance(LOADING_MIN_VISIBLE_MS);
+    advance(LOADING_MIN_VISIBLE_MS + FRAME_MS);
     expect(child).toHaveBeenCalled();
   });
 });

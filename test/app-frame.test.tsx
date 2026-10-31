@@ -149,13 +149,42 @@ describe("TopBar", () => {
     }
   });
 
+  // An app's opening draws the bar with neither a title nor a section (no row is current yet), and
+  // the first page then brings its section a while before its title. Gated on the title alone,
+  // the gate had opened during the opening and its hold had run out, so that section was drawn at
+  // once and dropped as the title landed: 67 ms on screen, measured on a loaded machine.
+  it("starts the section's wait when the section arrives, not while there is none", async () => {
+    vi.useFakeTimers();
+    try {
+      const { rerender } = render(<TopBar />);
+      await act(async () => void vi.advanceTimersByTime(1000));
+      rerender(<TopBar section="Knowledge" />);
+      expect(screen.getByRole("banner")).not.toHaveTextContent("Knowledge");
+      await act(async () => void vi.advanceTimersByTime(149));
+      expect(screen.getByRole("banner")).not.toHaveTextContent("Knowledge");
+      rerender(<TopBar section="Knowledge" title="Acme renewal" />);
+      await act(async () => void vi.advanceTimersByTime(1000));
+      expect(screen.getByRole("banner")).not.toHaveTextContent("Knowledge");
+      expect(screen.getByRole("heading", { level: 1, name: "Acme renewal" })).toBeInTheDocument();
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
   it("holds a section once shown for the loading hold, even when the title lands at once", async () => {
     vi.useFakeTimers();
     try {
       const { rerender } = render(<TopBar section="Knowledge" />);
       await act(async () => void vi.advanceTimersByTime(150));
+      // The hold counts from the frame that first draws the section (the fake clock's next one).
+      let paintedAt = Number.NaN;
+      requestAnimationFrame(() => {
+        paintedAt = performance.now();
+      });
+      await act(async () => void vi.advanceTimersByTime(16));
       rerender(<TopBar section="Knowledge" title="Acme renewal" />);
-      await act(async () => void vi.advanceTimersByTime(LOADING_MIN_VISIBLE_MS - 1));
+      const untilHeld = paintedAt + LOADING_MIN_VISIBLE_MS - 1 - performance.now();
+      await act(async () => void vi.advanceTimersByTime(untilHeld));
       expect(screen.getByRole("banner")).toHaveTextContent("Knowledge");
       await act(async () => void vi.advanceTimersByTime(1));
       expect(screen.getByRole("heading", { level: 1, name: "Acme renewal" })).toBeInTheDocument();
