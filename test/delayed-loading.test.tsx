@@ -1,6 +1,7 @@
 /**
  * The loading gate (decision 212): nothing for 150 ms, then the skeleton, held at least 350 ms
- * from the frame that first paints it; a fresh clock per wait. Driven with fake timers (which
+ * from the frame that first paints it, and dropped if its wait ends before any frame has; a fresh
+ * clock per wait. Driven with fake timers (which
  * fake `performance.now` and `requestAnimationFrame` too, a frame every 16 ms), so every boundary
  * is asserted at the millisecond rather than raced, except the one suite at the end, which needs
  * the real event loop.
@@ -13,6 +14,7 @@ import {
   LOADING_MIN_VISIBLE_MS,
   LOADING_THRESHOLD_MS,
   useDelayedLoading,
+  useLoadingPaintedAt,
   useLoadingPhase,
 } from "../src/index.js";
 
@@ -41,7 +43,7 @@ const paint = (): number => {
  * A renderer short of CPU: frames are asked for and run only when `run` says so, as late as a
  * loaded machine paints them. Undone by `vi.unstubAllGlobals()`.
  */
-function starveFrames(): { readonly run: () => void } {
+function starveFrames(): { readonly run: () => void; readonly waiting: () => number } {
   let queue: FrameRequestCallback[] = [];
   const ids = new Map<number, FrameRequestCallback>();
   let next = 1;
@@ -61,6 +63,7 @@ function starveFrames(): { readonly run: () => void } {
         queue = [];
         for (const callback of due) callback(performance.now());
       }),
+    waiting: () => queue.length,
   };
 }
 
@@ -126,17 +129,82 @@ describe("useDelayedLoading", () => {
       });
       advance(LOADING_THRESHOLD_MS);
       expect(result.current).toBe(true);
-      // The data lands 10 ms later, before the skeleton has been drawn at all.
-      advance(10);
-      rerender({ p: false });
       // The renderer is starved: no frame for 300 ms, so nothing has been on screen to hold yet.
-      advance(290);
-      expect(result.current).toBe(true);
+      advance(300);
       const paintedAt = performance.now();
       frames.run();
+      // The data lands 10 ms after the frame: the skeleton has been up for 10 ms, not for 310.
+      advance(10);
+      rerender({ p: false });
+      expect(result.current).toBe(true);
       advanceTo(paintedAt + LOADING_MIN_VISIBLE_MS - 1);
       expect(result.current).toBe(true);
       advance(1);
+      expect(result.current).toBe(false);
+    } finally {
+      vi.unstubAllGlobals();
+    }
+  });
+
+  // THE TEST THAT FAILS IF AN UNPAINTED SKELETON IS HELD AGAIN. The frame was still to come when
+  // the data landed, so the hold painted the skeleton and kept it 350 ms over ready data, with
+  // nothing on screen that could have blinked.
+  it("drops a skeleton whose wait ends before any frame has painted it", () => {
+    const frames = starveFrames();
+    try {
+      const { result, rerender } = renderHook(({ p }) => useDelayedLoading(p), {
+        initialProps: { p: true },
+      });
+      advance(LOADING_THRESHOLD_MS);
+      expect(result.current).toBe(true);
+      expect(frames.waiting()).toBeGreaterThan(0);
+      advance(10);
+      rerender({ p: false });
+      expect(result.current).toBe(false);
+      // Nothing is left to draw it, or to bring it back, when the stalled frame finally comes.
+      expect(frames.waiting()).toBe(0);
+      frames.run();
+      advance(LOADING_MIN_VISIBLE_MS * 2);
+      expect(result.current).toBe(false);
+    } finally {
+      vi.unstubAllGlobals();
+    }
+  });
+
+  it("drops a skeleton whose raise and whose end land in the same commit", () => {
+    const frames = starveFrames();
+    try {
+      const { result, rerender } = renderHook(({ p }) => useDelayedLoading(p), {
+        initialProps: { p: true },
+      });
+      act(() => {
+        vi.advanceTimersByTime(LOADING_THRESHOLD_MS);
+        rerender({ p: false });
+      });
+      expect(result.current).toBe(false);
+      expect(frames.waiting()).toBe(0);
+    } finally {
+      vi.unstubAllGlobals();
+    }
+  });
+
+  // An earlier wait's frame says nothing about this one: a painted time left over from it would
+  // hold, or skip the hold of, a skeleton nobody has seen.
+  it("drops an unpainted skeleton after an earlier one was painted and held", () => {
+    const frames = starveFrames();
+    try {
+      const { result, rerender } = renderHook(({ p }) => useDelayedLoading(p), {
+        initialProps: { p: true },
+      });
+      advance(LOADING_THRESHOLD_MS);
+      frames.run();
+      advance(LOADING_MIN_VISIBLE_MS);
+      rerender({ p: false });
+      expect(result.current).toBe(false);
+      rerender({ p: true });
+      advance(LOADING_THRESHOLD_MS);
+      expect(result.current).toBe(true);
+      rerender({ p: false });
       expect(result.current).toBe(false);
     } finally {
       vi.unstubAllGlobals();
@@ -195,9 +263,62 @@ describe("useDelayedLoading", () => {
   });
 });
 
+describe("useLoadingPaintedAt", () => {
+  beforeEach(() => vi.useFakeTimers());
+  // THIS ORDER: a stub made under fake timers restores the fake clock's frame function, which only
+  // `useRealTimers` takes away again.
+  afterEach(() => {
+    vi.unstubAllGlobals();
+    vi.useRealTimers();
+  });
+
+  it("is null until a frame paints the raise, stays after it ends, and clears on the next", () => {
+    const frames = starveFrames();
+    const { result, rerender } = renderHook(({ show }) => useLoadingPaintedAt(show), {
+      initialProps: { show: false },
+    });
+    expect(result.current.current).toBeNull();
+    rerender({ show: true });
+    expect(result.current.current).toBeNull();
+    const paintedAt = performance.now();
+    frames.run();
+    expect(result.current.current).toBe(paintedAt);
+    advance(100);
+    rerender({ show: false });
+    expect(result.current.current).toBe(paintedAt);
+    rerender({ show: true });
+    expect(result.current.current).toBeNull();
+  });
+
+  it("stays null for a raise that ended before its frame, when that frame comes", () => {
+    const frames = starveFrames();
+    const { result, rerender } = renderHook(({ show }) => useLoadingPaintedAt(show), {
+      initialProps: { show: true },
+    });
+    rerender({ show: false });
+    frames.run();
+    expect(result.current.current).toBeNull();
+  });
+});
+
 describe("useLoadingPhase", () => {
   beforeEach(() => vi.useFakeTimers());
   afterEach(() => vi.useRealTimers());
+
+  it("goes straight from skeleton to ready when no frame painted the skeleton", () => {
+    starveFrames();
+    try {
+      const { result, rerender } = renderHook(({ p }) => useLoadingPhase(p), {
+        initialProps: { p: true },
+      });
+      advance(LOADING_THRESHOLD_MS);
+      expect(result.current).toBe("skeleton");
+      rerender({ p: false });
+      expect(result.current).toBe("ready");
+    } finally {
+      vi.unstubAllGlobals();
+    }
+  });
 
   it("goes blank, then skeleton, then ready", () => {
     const { result, rerender } = renderHook(({ p }) => useLoadingPhase(p), {
@@ -283,6 +404,26 @@ describe("<Delayed>", () => {
     expect(fast.container.querySelector("[data-loading-phase='ready']")).not.toHaveAttribute(
       "data-handover",
     );
+  });
+
+  // THE SKELETON WAS COMMITTED, AND NOBODY SAW IT: this content has nothing to hand over from. A
+  // product's entrance keyed on `data-handover` would otherwise play where nothing stood before.
+  it("gives content no entrance and no hand-over when no frame painted the skeleton", () => {
+    const frames = starveFrames();
+    try {
+      const { rerender, container } = render(<Region pending />);
+      advance(LOADING_THRESHOLD_MS);
+      expect(screen.getByTestId("skeleton")).toBeInTheDocument();
+      rerender(<Region pending={false} />);
+      expect(screen.queryByTestId("skeleton")).toBeNull();
+      expect(screen.getByText("The meetings")).toBeInTheDocument();
+      frames.run();
+      const ready = container.querySelector("[data-loading-phase='ready']");
+      expect(ready).not.toHaveAttribute("data-handover");
+      expect(ready?.className ?? "").not.toMatch(/fade-in/);
+    } finally {
+      vi.unstubAllGlobals();
+    }
   });
 
   it("content that lands inside 150 ms appears with no entrance at all", () => {

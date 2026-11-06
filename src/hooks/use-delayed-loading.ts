@@ -18,11 +18,16 @@
  * `isPending` ends until the skeleton has been on screen for {@link LOADING_MIN_VISIBLE_MS}; a
  * caller therefore checks this flag BEFORE it checks for data (`<Delayed>` does that for it).
  *
+ * A SKELETON NO FRAME HAS PAINTED IS DROPPED WHEN ITS WAIT ENDS, IN A VISIBLE TAB OR A HIDDEN ONE.
+ * The hold exists so that nothing on screen blinks, and nobody has seen this one. Painted and then
+ * held, it covered ready data for 350 ms: with frames stalling while timers ran, a board's first
+ * content came 2150 ms into the load, against 510 ms with the skeleton dropped.
+ *
  * Copied from Tenure's `packages/ui/src/shell/useDelayedLoading.ts`, where it had already
  * replaced four private copies. Flywheel adopts it with this package, in place of
  * its immediate skeleton.
  */
-import { useLayoutEffect, useRef, useState } from "react";
+import { useLayoutEffect, useRef, useState, type RefObject } from "react";
 
 /** How long a pending state may run before the loading treatment is allowed to appear. */
 export const LOADING_THRESHOLD_MS = 150;
@@ -31,14 +36,14 @@ export const LOADING_THRESHOLD_MS = 150;
 export const LOADING_MIN_VISIBLE_MS = 350;
 
 /**
- * `true` once `isPending` has been `true` for {@link LOADING_THRESHOLD_MS}, and then until it has
- * ended AND the treatment has been visible for {@link LOADING_MIN_VISIBLE_MS}. A later wait starts
- * its own clock.
+ * When the frame that paints the treatment `show` raises ran: `null` until one has, and again from
+ * each new raise until that one is painted. It stays set after `show` ends, so a caller can still
+ * ask whether anybody saw the treatment that just went; `show` having been `true` does not say so,
+ * because the gate drops a treatment no frame has painted. A frame causes no render, so read this
+ * once `show` has ended, or in an effect.
  */
-export function useDelayedLoading(isPending: boolean): boolean {
-  const [show, setShow] = useState(false);
-  /** When the frame that first paints the treatment ran; `null` until it has. */
-  const shownAt = useRef<number | null>(null);
+export function useLoadingPaintedAt(show: boolean): Readonly<RefObject<number | null>> {
+  const paintedAt = useRef<number | null>(null);
 
   // THE HOLD COUNTS FROM THE FRAME THAT PAINTS THE TREATMENT, NOT FROM THE TIMER THAT RAISED IT.
   // Between the two sit a render, a commit and the wait for the next frame, and every millisecond
@@ -47,21 +52,36 @@ export function useDelayedLoading(isPending: boolean): boolean {
   // still parsing its scripts) would have made the hold itself a flash. Counted from the frame,
   // the same check measures 351 ms at a load average of 50.
   // The commit that raises it asks for the next animation frame, the one that draws it, and the
-  // clock starts there. A layout effect, so the frame is asked for inside that commit; declared
-  // before the effect below, so on a commit that also ends the wait this frame is asked for
-  // first, and runs first.
+  // clock starts there. A layout effect, so the frame is asked for inside that commit. The raise
+  // comes from a timer, not from inside a frame, and a browser runs a frame's callbacks before it
+  // paints that frame: so until this has run, nothing has been painted.
   useLayoutEffect(() => {
     if (!show) return undefined;
+    paintedAt.current = null;
     if (typeof requestAnimationFrame !== "function") {
       // Nothing paints frames here (a test renderer): the commit is as close as it gets.
-      shownAt.current = performance.now();
+      paintedAt.current = performance.now();
       return undefined;
     }
     const frame = requestAnimationFrame(() => {
-      shownAt.current = performance.now();
+      paintedAt.current = performance.now();
     });
     return () => cancelAnimationFrame(frame);
   }, [show]);
+
+  return paintedAt;
+}
+
+/**
+ * `true` once `isPending` has been `true` for {@link LOADING_THRESHOLD_MS}, and then until it has
+ * ended AND the treatment has been visible for {@link LOADING_MIN_VISIBLE_MS}; or only until it has
+ * ended, when no frame has painted the treatment by then. A later wait starts its own clock.
+ */
+export function useDelayedLoading(isPending: boolean): boolean {
+  const [show, setShow] = useState(false);
+  // Before the effect below, so on a commit that raises the treatment and also ends the wait, it
+  // has been reset and the frame asked for by the time that effect looks.
+  const paintedAt = useLoadingPaintedAt(show);
 
   // A LAYOUT EFFECT, NOT A PASSIVE ONE: LOAD-BEARING (tenure-v0.3.18). The commit that draws the
   // landed content must also cancel the 150 ms timer. A passive effect's cleanup runs in a later
@@ -76,33 +96,22 @@ export function useDelayedLoading(isPending: boolean): boolean {
       return () => clearTimeout(timer);
     }
     if (!show) return undefined;
-    const hide = () => {
-      shownAt.current = null;
-      setShow(false);
-    };
-    let timer: ReturnType<typeof setTimeout> | undefined;
-    let frame: number | undefined;
-    const holdFrom = (paintedAt: number) => {
-      const remaining = LOADING_MIN_VISIBLE_MS - (performance.now() - paintedAt);
-      if (remaining <= 0) hide();
-      else timer = setTimeout(hide, remaining);
-    };
-    if (shownAt.current !== null) {
-      holdFrom(shownAt.current);
-    } else if (document.visibilityState === "hidden") {
-      // Raised in a tab nobody is looking at, and never painted: nobody has seen it to be held.
+    const hide = () => setShow(false);
+    if (paintedAt.current === null) {
+      // The wait ended before the treatment's first frame: nobody has seen it to be held. React
+      // renders a layout effect's update before the browser can paint, and that commit cancels the
+      // frame, so it is never drawn.
       hide();
       return undefined;
-    } else {
-      // The wait ended before the treatment's first frame. That frame, asked for first above,
-      // starts the clock; this callback runs in the same frame, after it, and holds from there.
-      frame = requestAnimationFrame(() => holdFrom(shownAt.current ?? performance.now()));
     }
-    return () => {
-      clearTimeout(timer);
-      if (frame !== undefined) cancelAnimationFrame(frame);
-    };
-  }, [isPending, show]);
+    const remaining = LOADING_MIN_VISIBLE_MS - (performance.now() - paintedAt.current);
+    if (remaining <= 0) {
+      hide();
+      return undefined;
+    }
+    const timer = setTimeout(hide, remaining);
+    return () => clearTimeout(timer);
+  }, [isPending, show, paintedAt]);
 
   return show;
 }

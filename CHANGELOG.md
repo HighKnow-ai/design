@@ -13,6 +13,23 @@ workspace. A release is the tag `design-vX.Y.Z` on the commit that carries its e
 
 ## Unreleased
 
+#### Components
+
+- `useLoadingPaintedAt(show)`: a ref to when a frame painted the treatment that flag raised, `null`
+  if none has, for a surface that keeps its treatment up after the flag ends. Added: minor.
+
+#### Fixes
+
+- A loading treatment no frame has painted is dropped when its wait ends, in a visible tab as in a
+  hidden one (`useDelayedLoading`, so `Delayed`, `useLoadingPhase` and `TopBar`'s `section`). It
+  used to be painted and then held 350 ms over ready data when frames stalled while timers ran: a
+  board's first content came at 2150 ms in the reproduction, and comes at 510 ms now. A treatment a
+  frame did paint still holds its 350 ms, so nothing flashes. `true` having been returned no longer
+  means anybody saw the treatment: a caller that keeps something up on that account needs
+  `useLoadingPaintedAt`. `Delayed` uses it, so content that replaces a dropped skeleton gets no fade
+  and no `data-handover`. A test that ends a wait before the next fake frame sees the treatment go
+  at once: run the frame first. Patch.
+
 ## 0.3.0 — 2026-11-06
 
 #### Fixes

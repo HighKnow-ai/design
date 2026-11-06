@@ -4,9 +4,9 @@
  * `fallback` (a skeleton in the region's final geometry) held at least 350 ms, then the content.
  *
  * ═══════════════════════════════════════════════════════════════════════════════════════
- * THE CONTENT CROSS-FADES IN ONLY WHEN IT REPLACES A SKELETON. A region that was already there,
- * or whose data landed inside 150 ms, never re-enters: an entrance on content the reader has
- * already seen is motion without meaning. The fade is the overlay duration on the one curve, and
+ * THE CONTENT CROSS-FADES IN ONLY WHEN IT REPLACES A SKELETON SOMEBODY SAW. A region that was
+ * already there, or whose data landed inside 150 ms or before a frame painted the skeleton, never
+ * re-enters: an entrance with nothing to replace is motion without meaning. The fade is the overlay duration on the one curve, and
  * under reduced motion it stays (a fade is not movement; `@highknow/design/base.css`).
  *
  * THAT CONTENT ALSO CARRIES `data-handover="skeleton"`, the stable hook a product replaces the
@@ -20,9 +20,9 @@
  * A FAILED READ IS NOT THIS COMPONENT'S BUSINESS. Branch to `ReadError` before it, and to
  * `EmptyState` inside its content, so loading, failed and empty stay three different facts.
  */
-import { useRef, type ReactNode } from "react";
+import { type ReactNode } from "react";
 import { cn } from "../lib/utils.js";
-import { useLoadingPhase } from "../hooks/use-delayed-loading.js";
+import { useLoadingPaintedAt, useLoadingPhase } from "../hooks/use-delayed-loading.js";
 
 export interface DelayedProps {
   /** The query's `isPending`: true until its first answer (or failure). */
@@ -43,8 +43,8 @@ export function Delayed({
   className,
 }: DelayedProps): React.JSX.Element {
   const phase = useLoadingPhase(pending);
-  const sawSkeleton = useRef(false);
-  if (phase === "skeleton") sawSkeleton.current = true;
+  const paintedAt = useLoadingPaintedAt(phase === "skeleton");
+  const sawSkeleton = paintedAt.current !== null;
 
   if (phase !== "ready") {
     return (
@@ -70,11 +70,11 @@ export function Delayed({
   return (
     <div
       className={cn(
-        sawSkeleton.current && "animate-in duration-(--duration-overlay) ease-(--ease) fade-in",
+        sawSkeleton && "animate-in duration-(--duration-overlay) ease-(--ease) fade-in",
         className,
       )}
       data-loading-phase="ready"
-      data-handover={sawSkeleton.current ? "skeleton" : undefined}
+      data-handover={sawSkeleton ? "skeleton" : undefined}
     >
       {typeof children === "function" ? children() : children}
     </div>

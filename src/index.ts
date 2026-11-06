@@ -55,6 +55,7 @@ export {
   LOADING_MIN_VISIBLE_MS,
   LOADING_THRESHOLD_MS,
   useDelayedLoading,
+  useLoadingPaintedAt,
   useLoadingPhase,
   type LoadingPhase,
 } from "./hooks/use-delayed-loading.js";
