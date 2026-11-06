@@ -13,6 +13,8 @@ workspace. A release is the tag `design-vX.Y.Z` on the commit that carries its e
 
 ## Unreleased
 
+## 0.3.0 — 2026-11-06
+
 #### Fixes
 
 - The loading hold (`useDelayedLoading`, so `Delayed`, `useLoadingPhase` and `TopBar`'s
