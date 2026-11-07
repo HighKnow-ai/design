@@ -4,6 +4,7 @@
  * `matchMedia` (the sidebar's phone breakpoint). Nothing under test depends on a measured size or
  * a real media query, so no-op stand-ins are enough.
  */
+import "./settle-react.js";
 import * as matchers from "@testing-library/jest-dom/matchers";
 import { cleanup } from "@testing-library/react";
 import { afterEach, expect } from "vitest";
