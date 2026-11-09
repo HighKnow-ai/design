@@ -52,7 +52,9 @@ describe("settleReact", () => {
 
   it("clears a timer that would read window after jsdom has gone", async () => {
     const clear = vi.spyOn(globalThis, "clearTimeout");
-    const timer = setTimeout(() => void window.event, 50);
+    // Ten minutes, so it is still pending when `settleReact` runs: a 50 ms timer fired first on a loaded
+    // runner, and `clearTimeout` was never called with it (gate runs 42614568596 and 42618710912).
+    const timer = setTimeout(() => void window.event, 600_000);
 
     await settleReact();
 
