@@ -13,6 +13,8 @@ workspace. A release is the tag `design-vX.Y.Z` on the commit that carries its e
 
 ## Unreleased
 
+## 0.3.1 — 2026-11-11
+
 #### Components
 
 - `useLoadingPaintedAt(show)`: a ref to when a frame painted the treatment that flag raised, `null`
