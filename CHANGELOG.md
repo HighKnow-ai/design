@@ -13,6 +13,12 @@ workspace. A release is the tag `design-vX.Y.Z` on the commit that carries its e
 
 ## Unreleased
 
+#### Fixes
+
+- `cn()` drops an earlier `leading-*` when a later type step sets the size, as it did before
+  tailwind-merge 3.7.1: `<Label className="text-body">` has the step's line height again, not
+  Label's `leading-none`. With 3.7.1 alone every such label lost about 6 px of height.
+
 ## 0.3.1 — 2026-11-11
 
 #### Components

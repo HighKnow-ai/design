@@ -31,6 +31,12 @@ const twMerge = extendTailwindMerge({
       text: [...TYPE_STEPS],
       leading: ["prose"],
     },
+    // A later type step drops an earlier `leading-*`, so `<Label className="text-body">` gets the step's own line
+    // height over Label's `leading-none`. tailwind-merge did this until 3.7.1; without it the earlier leading stays,
+    // wins in the browser, and the approved screenshots move (test/cn.test.ts).
+    conflictingClassGroups: {
+      "font-size": ["leading"],
+    },
   },
 });
 
