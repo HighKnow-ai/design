@@ -10,7 +10,6 @@ function Progress({
   max = 100,
   ...props
 }: React.ComponentProps<typeof ProgressPrimitive.Root>) {
-  // Flywheel: `value` and `max` reach Radix, so the bar says aria-valuenow/-max; the stock component kept them back.
   const percent = max > 0 ? ((value || 0) / max) * 100 : 0;
   return (
     <ProgressPrimitive.Root

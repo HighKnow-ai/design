@@ -1,25 +1,12 @@
-/**
- * The hero (the hero and index from the prototype's variant B). A left-aligned
- * headline on the fluid display ramp, its second sentence in italic ("AI will not slow down.
- * *You can keep up.*"), then a hard rule, then the intro on the `lead` step and prose leading
- * beside an index. There is no image: the headline is the picture.
- *
- * `HeroIndex` is the index: a short list of steps, each a scope and a name, linked. The apex uses
- * it for the path (In the room → Tenure, On the roadmap → Flywheel, In production → The practice),
- * the company's argument rather than a product menu; its label is the apex's ("The path").
- */
 import type { ReactNode } from "react";
 import { cn } from "../lib/utils.js";
 import { MARKETING_CONTAINER } from "./layout.js";
 
 export interface HeroProps {
   readonly headline: ReactNode;
-  /** The headline's second sentence, set in italic on its own line. */
   readonly headlineAccent?: ReactNode;
   readonly intro?: ReactNode;
-  /** Beside the intro: a `HeroIndex`. */
   readonly index?: ReactNode;
-  /** Under the intro: the page's calls to action. */
   readonly actions?: ReactNode;
   readonly className?: string | undefined;
 }
@@ -58,15 +45,12 @@ export function Hero({ headline, headlineAccent, intro, index, actions, classNam
 }
 
 export interface HeroIndexItem {
-  /** Where the step happens: "In the room". */
   readonly scope: string;
-  /** What it is: "Tenure". */
   readonly name: string;
   readonly href: string;
 }
 
 export interface HeroIndexProps {
-  /** The index's accessible name: "The path". */
   readonly label: string;
   readonly items: readonly HeroIndexItem[];
   readonly className?: string | undefined;

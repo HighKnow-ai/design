@@ -1,18 +1,9 @@
-/**
- * The site footer: the column layout the apex shipped in da160a77, on the page
- * ground (the footer from the prototype's variant A, not B's band on `--muted`, which reads
- * as a raised slab in dark). An aside on the left (the mark, the company line, the fine print) and
- * titled columns of links on the right. The legal identity line and the counting sentence are the
- * apex's content, passed in the aside.
- */
 import type { ReactNode } from "react";
 import { cn } from "../lib/utils.js";
 import { MARKETING_CONTAINER } from "./layout.js";
 
 export interface SiteFooterProps {
-  /** The left block: the mark, the company line, the fine print. */
   readonly aside?: ReactNode;
-  /** The `FooterColumn`s. */
   readonly children: ReactNode;
   readonly className?: string | undefined;
 }
@@ -41,7 +32,6 @@ export interface FooterColumnProps {
   readonly className?: string | undefined;
 }
 
-/** One titled column of links. */
 export function FooterColumn({ title, children, className }: FooterColumnProps) {
   return (
     <div className={cn("min-w-0", className)}>

@@ -7,17 +7,9 @@ import {
   Loader2Icon,
 } from "lucide-react";
 
-/*
- * After-action feedback, Flywheel's rewrite of shadcn's `sonner`: one Toaster, mounted once at the
- * app's root, bottom-right. A toast is a popover-ground card on the overlay shadow; its icon carries
- * the outcome (a check for done, the octagon in red ink for failed) beside its words, never colour
- * alone. Fire toasts through `notify` (`lib/notify.ts`), not `sonner` directly. The scheme follows
- * the system, as `.dark` does; Sonner drops its own motion under reduced motion.
- */
 const Toaster = ({ ...props }: ToasterProps) => {
   return (
     <Sonner
-      // "system" reads matchMedia; an environment without it (jsdom) gets light, as colorScheme.ts does.
       theme={typeof window.matchMedia === "function" ? "system" : "light"}
       position="bottom-right"
       className="toaster group"

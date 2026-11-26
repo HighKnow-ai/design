@@ -1,17 +1,3 @@
-/**
- * The sidebar frame: the sidebar app's chrome as parts, composed from Tenure's
- * `packages/ui/src/knowledge/AppShell.tsx` with every product fact taken out. The product passes its
- * brand, its rows and its foot; the frame owns the geometry (248 px open, 56 px folded to icons,
- * a Sheet on a phone), the remembered fold, and the floor the page sits on.
- *
- *   <SidebarFrame brand={…} nav={<NavGroup label="Knowledge"><NavItem … /></NavGroup>} footer={…}>
- *     <TopBar leading={<SidebarTrigger label={…} />} title="Meetings" action={…} />
- *     <PageBody>…</PageBody>
- *   </SidebarFrame>
- *
- * NO WORD OF THE PRODUCT'S. The accessible names below have English defaults, which a localised
- * surface replaces; everything visible is passed in.
- */
 import type { CSSProperties, ReactNode } from "react";
 import {
   Sidebar,
@@ -25,24 +11,16 @@ import {
 import { cn } from "../lib/utils.js";
 
 export interface SidebarFrameProps {
-  /** The sidebar's head: the mark and the product's name. */
   readonly brand?: ReactNode;
-  /** The rows: `NavGroup`s of `NavItem`s. */
   readonly nav: ReactNode;
-  /** The sidebar's foot: account, language, legal links. Hidden while folded to icons. */
   readonly footer?: ReactNode;
-  /** Where the viewer's fold is remembered (`localStorage`). Absent, it is not remembered. */
   readonly storageKey?: string | undefined;
   readonly defaultOpen?: boolean | undefined;
-  /** The navigation landmark's accessible name. */
   readonly navLabel?: string | undefined;
-  /** The fold handle's accessible name. */
   readonly toggleLabel?: string | undefined;
-  /** The phone Sheet's accessible name and description. */
   readonly mobileTitle?: string | undefined;
   readonly mobileDescription?: string | undefined;
   readonly className?: string | undefined;
-  /** The page: a `TopBar` and a `PageBody`. */
   readonly children: ReactNode;
 }
 

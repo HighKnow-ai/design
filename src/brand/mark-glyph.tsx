@@ -1,12 +1,3 @@
-/**
- * The mark's glyph — the lightbulb holding a brain whose two halves read "HK" — as the white paths
- * `Wordmark` has always drawn, moved here unchanged so the favicon and app-icon set draws
- * the same paths rather than a copy that could drift from them.
- *
- * Coordinates are `docs/design/assets/logo.svg`'s 1024 box. `scale` is the glyph's size on its
- * tile: 1.20 is the logo's, and `AppIcon` passes a smaller one where a platform crops the tile
- * (a maskable icon's safe circle). The default keeps `Wordmark`'s markup byte-identical.
- */
 export interface MarkGlyphProps {
   readonly scale?: number | undefined;
 }

@@ -1,15 +1,9 @@
-/**
- * The section band: one band of a marketing page, at the page's container width.
- * `tone="page"` paints the page's own colour; `"muted"` is the tinted band, on `--muted` (the apex's
- * hand-picked `#f6f7fa` retires into it).
- */
 import type { ComponentProps } from "react";
 import { cn } from "../lib/utils.js";
 import { MARKETING_CONTAINER } from "./layout.js";
 
 export type SectionProps = ComponentProps<"section"> & {
   readonly tone?: "page" | "muted" | undefined;
-  /** Classes for the inner container, which holds the content at the page's width. */
   readonly containerClassName?: string | undefined;
 };
 

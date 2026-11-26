@@ -1,13 +1,5 @@
-/**
- * @highknow/design: the base every HighKnow surface is built from.
- *
- * The CSS is imported separately (`@highknow/design/theme.css`, `/base.css`, `/fonts.css`); this
- * entry is the React half. The marketing parts are a separate entry,
- * `@highknow/design/marketing`, which an app never imports.
- */
 export { cn, TYPE_STEPS, type TypeStep } from "./lib/utils.js";
 
-// ─── The primitives: Flywheel's 38 shadcn components, with Tenure's Skeleton and Sidebar ────
 export * from "./components/ui/alert-dialog.js";
 export * from "./components/ui/alert.js";
 export * from "./components/ui/badge.js";
@@ -48,7 +40,6 @@ export * from "./components/ui/toggle.js";
 export * from "./components/ui/tooltip.js";
 export { useIsMobile } from "./hooks/use-mobile.js";
 
-// ─── The shared composites ───────────────────────────────────────────────────
 export { ReadError, messageOf, type ReadErrorProps } from "./components/read-error.js";
 export { Delayed, type DelayedProps } from "./components/delayed.js";
 export {
@@ -90,12 +81,10 @@ export {
   type LanguageSwitcherProps,
 } from "./components/language-switcher.js";
 
-// ─── The mark ───────────────────────────────────────────────────────────────────────────────
 export { BRAND_HEX, Wordmark, type WordmarkProps } from "./brand/wordmark.js";
 export { MarkGlyph, type MarkGlyphProps } from "./brand/mark-glyph.js";
 export { AppIcon, type AppIconProps, type AppIconTile } from "./brand/app-icon.js";
 
-// ─── The app frame, as parts ─────────────────────────────────────────────────
 export { SidebarFrame, type SidebarFrameProps } from "./app-frame/sidebar-frame.js";
 export {
   NavGroup,

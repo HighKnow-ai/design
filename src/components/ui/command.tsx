@@ -32,7 +32,6 @@ function CommandDialog({
   description?: string;
   className?: string;
   showCloseButton?: boolean;
-  /** cmdk's ranking: 0 hides an item, higher sorts it first. cmdk's own fuzzy match when omitted. */
   filter?: React.ComponentProps<typeof CommandPrimitive>["filter"];
 }) {
   return (

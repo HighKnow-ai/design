@@ -1,8 +1,3 @@
-/**
- * @highknow/design/marketing: the parts a marketing page is built from. The apex
- * is built from them and the gallery shows them; AN APP NEVER IMPORTS THIS ENTRY. The parts compose
- * the root entry's primitives and mark, which a page imports from `@highknow/design` itself.
- */
 export { SiteHeader, type SiteHeaderProps } from "./marketing/site-header.js";
 export {
   FooterColumn,

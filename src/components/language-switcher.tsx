@@ -1,36 +1,13 @@
-/**
- * The language control (optional: Flywheel is English-only), from Tenure's
- * `packages/ui/src/i18n/LanguageSwitcher.tsx`, which the apex and Tenure already shared.
- *
- * ═══════════════════════════════════════════════════════════════════════════════════════
- * THE LOCALES AND THEIR LABELS ARE THE CALLER'S. Tenure's hard-coded EN and FR; here the surface
- * passes its own list. Labels are codes, not full names, so the control does not
- * shift when translated. `onSelect` receives the VALUE, never the label: a switch on the label
- * breaks the day a label changes.
- *
- * THE ACTIVE CHOICE IS CARRIED BY WEIGHT, NOT COLOUR ALONE, as an inline style, so the difference
- * is a real computed style. It is never a filled button: it must not compete with the page's one
- * primary action.
- *
- * TWO FORMS, ONE LOOK. `onSelect` renders buttons for a client that swaps its catalogue in memory.
- * `hrefFor` renders plain links for a server-rendered page that must switch with no JavaScript at
- * all; the active link says so with `aria-current`, the link-shaped twin of `aria-pressed`.
- *
- * The root merges `className` with `cn()`, so a responsive `hidden` passed in wins over its own
- * `inline-flex`.
- */
 import { cn } from "../lib/utils.js";
 
 export interface LanguageOption<Locale extends string = string> {
   readonly value: Locale;
-  /** The code shown: "EN". */
   readonly label: string;
 }
 
 export type LanguageSwitcherProps<Locale extends string = string> = {
   readonly locales: ReadonlyArray<LanguageOption<Locale>>;
   readonly active: Locale;
-  /** The group's accessible name. English by default. */
   readonly label?: string | undefined;
   readonly className?: string | undefined;
 } & (

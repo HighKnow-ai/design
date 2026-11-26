@@ -1,35 +1,10 @@
-/**
- * One region's loading grammar, as a component (from Tenure's `shell/Delayed.tsx`; loading,
- * empty, failed and unknown are four different facts): nothing for the first 150 ms of a first load, then
- * `fallback` (a skeleton in the region's final geometry) held at least 350 ms, then the content.
- *
- * ═══════════════════════════════════════════════════════════════════════════════════════
- * THE CONTENT CROSS-FADES IN ONLY WHEN IT REPLACES A SKELETON SOMEBODY SAW. A region that was
- * already there, or whose data landed inside 150 ms or before a frame painted the skeleton, never
- * re-enters: an entrance with nothing to replace is motion without meaning. The fade is the overlay duration on the one curve, and
- * under reduced motion it stays (a fade is not movement; `@highknow/design/base.css`).
- *
- * THAT CONTENT ALSO CARRIES `data-handover="skeleton"`, the stable hook a product replaces the
- * fade on (Tenure's rows rise in turn instead). Key on the attribute, never on the fade's
- * utility classes, and replace the fade rather than adding to it: a fade on a fade reads as lag.
- *
- * `children` MAY BE A FUNCTION, so a caller can write `{() => <List rows={query.data!} />}` and
- * the data is only read once the gate says it is there. Pass the query's `isPending` (a FIRST
- * load), never `isFetching`: a refetch of data already on screen shows nothing.
- *
- * A FAILED READ IS NOT THIS COMPONENT'S BUSINESS. Branch to `ReadError` before it, and to
- * `EmptyState` inside its content, so loading, failed and empty stay three different facts.
- */
 import { type ReactNode } from "react";
 import { cn } from "../lib/utils.js";
 import { useLoadingPaintedAt, useLoadingPhase } from "../hooks/use-delayed-loading.js";
 
 export interface DelayedProps {
-  /** The query's `isPending`: true until its first answer (or failure). */
   readonly pending: boolean;
-  /** The skeleton, in the content's own shape. Shown only after 150 ms. */
   readonly fallback: ReactNode;
-  /** What is loading, for assistive technology ("Loading the meeting list."). */
   readonly label: string;
   readonly children: ReactNode | (() => ReactNode);
   readonly className?: string | undefined;

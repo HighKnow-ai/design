@@ -1,11 +1,3 @@
-/**
- * A sidebar's rows, from Tenure's `AppShell` `NavRow`, with its product facts (the
- * icon table keyed on Tenure's page ids, the review-queue badge) taken out: the product passes the
- * icon, the badge and its announcement.
- *
- * THE CURRENT ROW IS A RAISED CARD ON THE SIDEBAR GROUND, NEVER THE BRAND (Flywheel's rule): the
- * brand is for the one primary action, and a sidebar where the current page is blue spends it.
- */
 import type { MouseEvent, ReactNode } from "react";
 import {
   SidebarGroup,
@@ -29,13 +21,11 @@ const CURRENT =
   "ring-sidebar-border hover:bg-sidebar-primary";
 
 export interface NavGroupProps {
-  /** The condensed uppercase group name. Absent, the group has no heading. */
   readonly label?: string | undefined;
   readonly className?: string | undefined;
   readonly children: ReactNode;
 }
 
-/** A named group of rows: Knowledge, Workspace, Governance. */
 export function NavGroup({ label, className, children }: NavGroupProps) {
   return (
     <SidebarGroup className={cn("px-2 py-1.5", className)}>
@@ -49,7 +39,6 @@ export function NavGroup({ label, className, children }: NavGroupProps) {
   );
 }
 
-/** What `renderLink` receives: everything a router's link needs to look and behave like a row. */
 export interface NavLinkProps {
   readonly href: string;
   readonly className?: string | undefined;
@@ -61,19 +50,11 @@ export interface NavLinkProps {
 export interface NavItemProps {
   readonly href: string;
   readonly label: string;
-  /** A Lucide glyph, drawn at 18 px. */
   readonly icon?: ReactNode;
   readonly active?: boolean | undefined;
-  /** A count beside the row. Only a number above zero shows; `null` is not known. */
   readonly badge?: number | null | undefined;
-  /** What a screen reader hears after the label while the badge shows: "(3 new)". */
   readonly badgeAnnouncement?: string | undefined;
-  /**
-   * Called on a press INSTEAD of following `href`: a surface with no router (a desktop window)
-   * would otherwise navigate its webview.
-   */
   readonly onSelect?: (() => void) | undefined;
-  /** How the row is rendered as a link: a router passes its own `Link` here. */
   readonly renderLink?: ((props: NavLinkProps) => ReactNode) | undefined;
 }
 
@@ -95,7 +76,6 @@ export function NavItem({
       event.preventDefault();
       onSelect();
     }
-    // On a phone the Sheet closes once a page is chosen; the page is what the reader asked for.
     if (isMobile) setOpenMobile(false);
   };
 

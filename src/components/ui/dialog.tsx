@@ -84,10 +84,6 @@ function DialogFooter({
   children,
   ...props
 }: React.ComponentProps<"div"> & {
-  /**
-   * A visible Close button, with this word. shadcn's `showCloseButton` drew an English "Close";
-   * the package carries no visible copy, so the word is the caller's.
-   */
   closeLabel?: string;
 }) {
   return (

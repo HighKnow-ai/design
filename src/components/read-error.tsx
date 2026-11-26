@@ -1,22 +1,3 @@
-/**
- * A read that failed, in place of the content it could not load: an icon, a title naming
- * what failed, one line, and a retry. Tenure's `ReadError` (`packages/ui/src/shell/ReadError.tsx`)
- * and Flywheel's (`flywheel/packages/desktop/src/components/ReadError.tsx`) as one component.
- *
- * ═══════════════════════════════════════════════════════════════════════════════════════
- * WHERE THE RAW MESSAGE GOES IS THE ONE THING THE PRODUCTS DISAGREED ON, SO IT IS ONE PROP.
- *   `rawMessage="title"` (the default): the message travels in the `title` attribute, a hover for
- *     the person forwarding a screenshot to support, and never reaches the page. Tenure's readers
- *     are not developers, and a raw reason code never reaches their screen.
- *   `rawMessage="disclosure"`: the message folds behind a disclosure in the code face, for a bug
- *     report. Flywheel's readers are developers.
- *
- * THE RETRY IS THE QUERY'S OWN `refetch`, shown pending while it runs (`retrying`, normally the
- * query's `isFetching`), so the reader sees the attempt and cannot press twice. With no `onRetry`
- * there is no button: a failure no retry can fix offers none.
- *
- * Every visible word is the caller's: the title, the line, and the two labels.
- */
 import { ChevronRight, OctagonX, RotateCw } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "./ui/alert.js";
 import { Button } from "./ui/button.js";
@@ -26,11 +7,8 @@ import { cn } from "../lib/utils.js";
 type RetryProps =
   | { readonly onRetry?: undefined; readonly retryLabel?: undefined; readonly retrying?: undefined }
   | {
-      /** The query's `refetch`. */
       readonly onRetry: () => void;
-      /** The button's word: "Try again". */
       readonly retryLabel: string;
-      /** True while the retry runs: the button shows its spinner and swallows presses. */
       readonly retrying?: boolean | undefined;
     };
 
@@ -38,22 +16,17 @@ type RawMessageProps =
   | { readonly rawMessage?: "title" | undefined; readonly detailsLabel?: undefined }
   | {
       readonly rawMessage: "disclosure";
-      /** The disclosure's word: "Details". */
       readonly detailsLabel: string;
     };
 
 export type ReadErrorProps = {
-  /** What failed, in the page's words: "The meeting list could not be loaded." */
   readonly title: string;
-  /** One line under it. Absent or `""`, there is no line. */
   readonly description?: string | undefined;
-  /** The failure itself. Where its message goes is `rawMessage`'s business. */
   readonly error?: unknown;
   readonly className?: string | undefined;
 } & RetryProps &
   RawMessageProps;
 
-/** The failure's message, or `undefined` when there is nothing worth showing. */
 export function messageOf(error: unknown): string | undefined {
   if (error === undefined || error === null) return undefined;
   if (error instanceof Error) return error.message || undefined;
@@ -64,8 +37,6 @@ export function messageOf(error: unknown): string | undefined {
   try {
     return JSON.stringify(error);
   } catch {
-    // Not serialisable (a cycle, a BigInt): `String()` would show "[object Object]", which is
-    // nothing worth showing.
     return undefined;
   }
 }

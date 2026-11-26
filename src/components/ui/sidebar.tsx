@@ -1,10 +1,3 @@
-/**
- * shadcn/ui `sidebar` (style radix-nova), Tenure's version (`packages/ui/src/components/ui/sidebar.tsx`),
- * which replaces Flywheel's. It is Flywheel's retheme plus two changes: the fold is kept in
- * `localStorage` under a `storageKey` (shadcn's cookie is only ever read back by a server render),
- * and the phone Sheet's title and description and the toggles' names are props, so a surface can
- * localise them. Their English defaults are accessible names only.
- */
 "use client";
 
 import * as React from "react";
@@ -47,15 +40,6 @@ function useSidebar() {
   return context;
 }
 
-/**
- * The viewer's remembered fold, read synchronously so the first frame is already right.
- *
- * TENURE'S ONE CHANGE TO THIS FILE (decision 212): shadcn writes a `sidebar_state` cookie that only
- * a server render ever reads back. This app has no server render, so the fold lives in
- * `localStorage` under the key the shell names, read in the `useState` initialiser rather than an
- * effect (an effect would paint the default first and then jump). Storage can be absent or throw
- * (a private window, blocked site data), and then the default stands.
- */
 function readStoredOpen(storageKey: string | undefined, fallback: boolean): boolean {
   if (storageKey === undefined) return fallback;
   try {
@@ -70,9 +54,7 @@ function writeStoredOpen(storageKey: string | undefined, open: boolean): void {
   if (storageKey === undefined) return;
   try {
     globalThis.localStorage?.setItem(storageKey, open ? "expanded" : "collapsed");
-  } catch {
-    // Not remembered; the fold still works for this visit.
-  }
+  } catch {}
 }
 
 function SidebarProvider({
@@ -88,14 +70,11 @@ function SidebarProvider({
   defaultOpen?: boolean;
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
-  /** Where the viewer's fold is remembered; absent, it is not remembered. */
   storageKey?: string;
 }) {
   const isMobile = useIsMobile();
   const [openMobile, setOpenMobile] = React.useState(false);
 
-  // This is the internal state of the sidebar.
-  // We use openProp and setOpenProp for control from outside the component.
   const [_open, _setOpen] = React.useState(() => readStoredOpen(storageKey, defaultOpen));
   const open = openProp ?? _open;
   const setOpen = React.useCallback(
@@ -111,12 +90,10 @@ function SidebarProvider({
     [setOpenProp, open, storageKey],
   );
 
-  // Helper to toggle the sidebar.
   const toggleSidebar = React.useCallback(() => {
     return isMobile ? setOpenMobile((open) => !open) : setOpen((open) => !open);
   }, [isMobile, setOpen, setOpenMobile]);
 
-  // Adds a keyboard shortcut to toggle the sidebar.
   React.useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === SIDEBAR_KEYBOARD_SHORTCUT && (event.metaKey || event.ctrlKey)) {
@@ -129,8 +106,6 @@ function SidebarProvider({
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [toggleSidebar]);
 
-  // We add a state so that we can do data-state="expanded" or "collapsed".
-  // This makes it easier to style the sidebar with Tailwind classes.
   const state = open ? "expanded" : "collapsed";
 
   const contextValue = React.useMemo<SidebarContextProps>(
@@ -183,7 +158,6 @@ function Sidebar({
   side?: "left" | "right";
   variant?: "sidebar" | "floating" | "inset";
   collapsible?: "offcanvas" | "icon" | "none";
-  /** The phone Sheet's accessible name and description (Tenure: localised by the shell). */
   mobileTitle?: string;
   mobileDescription?: string;
 }) {
@@ -256,7 +230,6 @@ function Sidebar({
         data-side={side}
         className={cn(
           "fixed inset-y-0 z-10 hidden h-svh w-(--sidebar-width) transition-[left,right,width] duration-(--duration-state) ease-(--ease) data-[side=left]:left-0 data-[side=left]:group-data-[collapsible=offcanvas]:left-[calc(var(--sidebar-width)*-1)] data-[side=right]:right-0 data-[side=right]:group-data-[collapsible=offcanvas]:right-[calc(var(--sidebar-width)*-1)] md:flex",
-          // Adjust the padding for floating and inset variants.
           variant === "floating" || variant === "inset"
             ? "p-2 group-data-[collapsible=icon]:w-[calc(var(--sidebar-width-icon)+(--spacing(4))+2px)]"
             : "group-data-[collapsible=icon]:w-(--sidebar-width-icon) group-data-[side=left]:border-r group-data-[side=right]:border-l",
@@ -282,7 +255,6 @@ function SidebarTrigger({
   label = "Toggle Sidebar",
   ...props
 }: React.ComponentProps<typeof Button> & {
-  /** The trigger's accessible name (Tenure: localised by the shell). */
   label?: string;
 }) {
   const { toggleSidebar } = useSidebar();
@@ -609,7 +581,6 @@ function SidebarMenuSkeleton({
 }: React.ComponentProps<"div"> & {
   showIcon?: boolean;
 }) {
-  // Random width between 50 to 90%.
   const [width] = React.useState(() => {
     return `${Math.floor(Math.random() * 40) + 50}%`;
   });

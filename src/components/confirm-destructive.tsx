@@ -1,18 +1,3 @@
-/**
- * The one confirmation for an action that cannot be taken back, from Flywheel's
- * `components/ConfirmDestructive.tsx`. Both products state the rule: destructive is a text button,
- * and it always confirms in an AlertDialog. The question is the title ("Drop FLY-12?"), the
- * consequence is one line, Cancel sits on the left as outline and the action on the right as
- * `destructive`, named by its verb and object ("Drop the Story"), never "OK" or "Yes".
- *
- * `onConfirm` may return a promise: the action shows as pending and the dialog cannot be dismissed
- * until it settles; it closes on success, and on failure stays open with the failure's message, so
- * the reader can try again or cancel. Open it from a `trigger`, or control it with `open` and
- * `onOpenChange`.
- *
- * Every visible word is the caller's, Cancel included. `failureLabel` is what shows
- * when a failure carries no message of its own.
- */
 import { useState, type ReactNode } from "react";
 import {
   AlertDialog,
@@ -35,12 +20,9 @@ export interface ConfirmDestructiveProps {
   readonly description: ReactNode;
   readonly confirmLabel: string;
   readonly cancelLabel: string;
-  /** Shown when the action fails with no message of its own. Without it, the failure's text. */
   readonly failureLabel?: string | undefined;
-  /** The action's icon, as on the button that opened the dialog. */
   readonly icon?: ReactNode;
   readonly onConfirm: () => unknown;
-  /** Anything more the decision needs, between the description and the buttons. */
   readonly children?: ReactNode;
 }
 

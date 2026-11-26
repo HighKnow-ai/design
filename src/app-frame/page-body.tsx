@@ -1,13 +1,6 @@
-/**
- * The page body: the page's measure and its vertical rhythm, from Tenure's
- * `AppShell` body. `reading` is the products' 920 px column, `wide` a table or a board, `full` the
- * window. `surface="card"` draws the whole body on one white card (a page that predates cards of
- * its own); `"floor"` leaves the page to draw its own cards on the grey floor.
- */
 import type { ReactNode } from "react";
 import { cn } from "../lib/utils.js";
 
-/** The measures a page body's content, and the top bar's above it, align to. */
 export const PAGE_WIDTHS = {
   reading: "max-w-[920px]",
   wide: "max-w-[1160px]",

@@ -1,16 +1,7 @@
-/**
- * `Tip` and `TruncateTip`, from Flywheel's `components/Tip.tsx` and
- * `components/TruncateTip.tsx`: the one Tooltip in place of a `title=` attribute.
- */
 import { useRef, useState, type ReactElement, type ReactNode } from "react";
 import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip.js";
 import { cn } from "../lib/utils.js";
 
-/**
- * A short explanation or an exact value in the one Tooltip: the absolute time behind an age, what
- * an estimate means, why a control is off. The child is the trigger, so it keeps its own element
- * and classes. With no `content` it renders the child alone.
- */
 export function Tip({
   content,
   children,
@@ -29,18 +20,6 @@ export function Tip({
   );
 }
 
-/**
- * The whole text of something cut short, in a Tooltip, and only while it is cut short. Wrap the
- * element that truncates or clamps:
- *
- *   <TruncateTip text={project.name}>
- *     <span className="truncate">{project.name}</span>
- *   </TruncateTip>
- *
- * Whether it is cut is measured when the Tooltip would open, so a name that fits shows no tooltip
- * and hovering never repeats what is already on screen. `mono` sets the tooltip in the code face,
- * for a path or a command.
- */
 export function TruncateTip({
   text,
   mono = false,
