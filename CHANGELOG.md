@@ -13,6 +13,8 @@ workspace. A release is the tag `design-vX.Y.Z` on the commit that carries its e
 
 ## Unreleased
 
+## 0.3.2 — 2026-11-26
+
 #### Fixes
 
 - `cn()` drops an earlier `leading-*` when a later type step sets the size, as it did before
@@ -20,6 +22,8 @@ workspace. A release is the tag `design-vX.Y.Z` on the commit that carries its e
   Label's `leading-none`. With 3.7.1 alone every such label lost about 6 px of height.
 
 ## 0.3.1 — 2026-11-11
+
+0.3.1 was never published. Its changes first ship in 0.3.2.
 
 #### Components
 
